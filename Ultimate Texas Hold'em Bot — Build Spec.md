@@ -105,3 +105,35 @@ holdem-bot/
 - `playwright` — browser automation
 - Standard lib `itertools.combinations` for exact enumeration (river, and the C(7,5) subset check)
 - Standard lib `random` for Monte Carlo sampling (flop, preflop table generation)
+
+## 9. Payout rules (verified against official casino rule sheets)
+
+These are the exact numbers `decision/ev.py` should use. Don't let Claude Code infer or guess variations — qualification affects the Ante *only*; Play and Blind always resolve by directly comparing player's best hand to dealer's best hand, regardless of whether the dealer qualified.
+
+### Blind bet
+
+Pays only if your hand is a Straight or better AND you beat or tie the dealer. Otherwise push (even if you win with a weaker hand).
+
+| Hand | Payout |
+| --- | --- |
+| Royal Flush | 500 : 1 |
+| Straight Flush | 50 : 1 |
+| Four of a Kind | 10 : 1 |
+| Full House | 3 : 1 |
+| Flush | 3 : 2 |
+| Straight | 1 : 1 |
+| Trips or lower | Push |
+
+### Ante and Play — dealer QUALIFIES (pair or better)
+
+- Player beats dealer → Ante 1:1, Play 1:1
+- Dealer beats player → Ante loses, Play loses, Blind loses
+- Tie → Ante push, Play push, Blind push
+
+### Ante and Play — dealer DOES NOT qualify
+
+- **Ante** → always pushes, regardless of outcome
+- **Play** → still compared normally: player beats dealer's (non-qualifying) hand → pays 1:1; dealer beats player → Play loses; tie → Play pushes
+- **Blind** → same table as above, same hand-vs-hand comparison — qualification is irrelevant to Blind
+
+
