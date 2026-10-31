@@ -136,4 +136,59 @@ Pays only if your hand is a Straight or better AND you beat or tie the dealer. O
 - **Play** → still compared normally: player beats dealer's (non-qualifying) hand → pays 1:1; dealer beats player → Play loses; tie → Play pushes
 - **Blind** → same table as above, same hand-vs-hand comparison — qualification is irrelevant to Blind
 
+**Verify against the actual practice site's rules page before finalizing `ev.py`** — some online variants (especially non-US ones) tweak the Blind paytable slightly. These numbers are the generic/standard casino version; confirm the site matches before trusting them in the EV math.
 
+## 10. Session handoff notes (for a fresh Claude Code session)
+
+Use this section to re-orient a new session on the decision/ module without replaying the full chat history. Paste this whole section (or the doc) into the new session, or just point it at this doc plus `git log`.
+
+### Status as of last session
+
+- Branch: work has been happening on `decision-engine` (not `main`) — check `git branch` and merge/push as needed before continuing.
+- Committed: `evaluator.py` (commit `ded39b7`), `ev.py` (commit `5aaf4ea`). Both have passing test suites (11 tests, 32 tests respectively).
+- In progress / next: `river.py` has been written (not yet confirmed committed — check `git log` and `git status` first) implementing spec 3b. Next after that is `flop.py` (3c), then the pre-flop table generator (3d).
+- Reason for this handoff: the previous session hit a context-window limit on the `deepseek-v4.1-flash` combo (128K token cap) and needed a fresh start.
+
+### Locked-in design decisions (don't re-litigate these)
+
+1. **EV baseline**: folding forfeits the Ante AND Blind (`ev_of_fold` = -(ante\_stake + blind\_stake) = -2 units), on all three streets. This, not the qualification rule, is why breakeven is \~19% instead of 50%.
+2. **Outcome buckets**: 5 buckets, not 3 — `win_qualified`, `win_unqualified`, `push`, `lose_qualified`, `lose_unqualified` (see `decision.ev.Outcomes` and `BUCKETS`). A plain win/push/lose triple is insufficient because the Ante resolves differently depending on dealer qualification.
+3. **Blind handling**: `bucket_payoffs(multiplier, blind_multiplier, table)` takes `blind_multiplier` as an explicit float — the Blind payout for the player's own final hand class. `river.py` computes it exactly via `blind_multiplier_for_score()` since the final hand is fully known. `flop.py`/`preflop.py` should pass 0.0 for now (not yet implemented — estimating it there was explicitly deferred, not forgotten).
+4. **Threshold form**: `breakeven_win_rate(multiplier, *, tie_rate, qualify_on_win, qualify_on_lose, blind_multiplier=0.0, table=PAYOUT_TABLE)` — solved numerically by bisection against `ev_of_bet`, not a closed-form formula, so it can never drift out of sync with the EV calculation it's the root of. Each caller passes its own measured `tie_rate` and conditional qualify rates — never a global assumed constant.
+5. **Monte Carlo sample sizes** (for flop.py and the pre-flop generator, not yet built): flop N=100,000 per decision (\~1.7s, acceptable — no live-latency constraint, single-player vs. house). Pre-flop table generator: N=2,000,000 trials per starting-hand class (\~1.6 hours total, one-time offline cost, not yet run).
+
+### Two corrections made during the ev.py session (already fixed in the code/docstrings, kept here as context for why the numbers are what they are)
+
+- The claim "\~19% breakeven matches the published '21 dealer outs' heuristic" was checked properly and does NOT hold precisely (lands closer to 24–25 outs) — directionally consistent, not a validated match. Real validation comes from `river.py` output compared against published hand-by-hand river charts.
+- The spec's original claim that the non-qualify Ante-push rule is why breakeven isn't 50% is wrong. That rule only shifts the threshold by about 0.04 percentage points (the two effects of the rule nearly cancel). The real driver is simply that folding costs 2 units, not 0 — see the breakeven-at-zero-cost test and the module docstring in `ev.py` for the measured proof.
+
+### Key function signatures already built (so new code composes with them, not around them)
+
+```python
+# decision/evaluator.py
+best_hand_rank(hole: Sequence[int], board: Sequence[int]) -> int   # LOWER = stronger; 5-7 cards
+hand_class(score: int) -> HandClass                                  # 0=royal flush ... 9=high card
+remaining_deck(*known: Sequence[int]) -> list[int]
+parse_cards(text: str | Iterable[str]) -> list[int]                  # "As Ks" -> treys ints
+
+# decision/ev.py
+class Outcomes:  # win_qualified, win_unqualified, push, lose_qualified, lose_unqualified
+    @classmethod
+    def from_counts(cls, **bucket_counts) -> "Outcomes": ...   # normalizes raw tallies
+
+bucket_payoffs(multiplier, blind_multiplier=0.0, table=PAYOUT_TABLE) -> dict[str, float]
+ev_of_bet(multiplier, outcomes, blind_multiplier=0.0, table=PAYOUT_TABLE) -> float
+ev_of_fold(table=PAYOUT_TABLE) -> float
+ev_advantage(multiplier, outcomes, blind_multiplier=0.0, table=PAYOUT_TABLE) -> float
+should_bet(multiplier, outcomes, blind_multiplier=0.0, table=PAYOUT_TABLE) -> bool
+breakeven_win_rate(multiplier, *, tie_rate, qualify_on_win, qualify_on_lose, blind_multiplier=0.0, table=PAYOUT_TABLE) -> float
+
+# decision/river.py (spec 3b, written this session)
+dealer_qualifies(score: int) -> bool
+enumerate_dealer_outcomes(hole, board) -> dict[str, int]   # all C(45,2)=990 dealer combos, exact
+decide(hole, board, table=PAYOUT_TABLE) -> RiverDecision    # .action is RiverAction.BET or .FOLD
+```
+
+### Next step for the new session
+
+Confirm `river.py`'s commit status, then build `decision/flop.py` (spec 3c): Monte Carlo sampling over {dealer hand, turn, river} completions at N=100,000 samples, reusing `evaluator.py` and `ev.py` exactly as `river.py` does, but passing `blind_multiplier=0.0` (not yet estimated) and the sampled qualify-rate/tie-rate instead of exact enumeration. Validate `river.py`'s output against published UTH river strategy charts for a few known hands before moving on, per the deferred validation noted above.
