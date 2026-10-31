@@ -1,2 +1,9 @@
 #Plan file for claude code
 Ultimate Texas Hold'em Bot — Build Spec.md
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
