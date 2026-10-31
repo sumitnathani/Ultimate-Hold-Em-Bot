@@ -36,13 +36,20 @@ __all__ = [
     "HandClass",
     "BEST_POSSIBLE_SCORE",
     "WORST_POSSIBLE_SCORE",
+    "RANKS",
+    "SUITS",
     "parse_cards",
+    "full_deck",
+    "remaining_deck",
     "five_card_score",
     "best_hand_rank",
     "hand_class",
     "hand_name",
     "describe",
 ]
+
+RANKS = "23456789TJQKA"
+SUITS = "shdc"
 
 # One shared evaluator. treys builds a large lookup table in __init__, so
 # constructing this per-call would dominate the runtime of the Monte Carlo
@@ -86,6 +93,28 @@ def parse_cards(text: str | Iterable[str]) -> list[int]:
     """
     tokens = text.split() if isinstance(text, str) else list(text)
     return [Card.new(tok) for tok in tokens]
+
+
+def full_deck() -> list[int]:
+    """All 52 cards as treys ints, in a fixed rank-then-suit order.
+
+    Deterministic ordering matters: it is what makes the pre-flop table
+    generator reproducible for a given random seed.
+    """
+    return [Card.new(rank + suit) for rank in RANKS for suit in SUITS]
+
+
+def remaining_deck(*known: Sequence[int]) -> list[int]:
+    """The 52-card deck minus every card appearing in any ``known`` group.
+
+    Accepts the groups as separate arguments so callers can write
+    ``remaining_deck(hole, board)`` and get the undealt cards, which is what
+    the river enumeration and the samplers both need.
+    """
+    seen: set[int] = set()
+    for group in known:
+        seen.update(group)
+    return [card for card in full_deck() if card not in seen]
 
 
 def five_card_score(cards: Sequence[int]) -> int:
