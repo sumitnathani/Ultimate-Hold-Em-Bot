@@ -14,13 +14,13 @@ from math import comb
 import pytest
 
 from decision.evaluator import best_hand_rank, full_deck, parse_cards, remaining_deck
-from decision.ev import BLIND_ODDS, Outcomes
+from decision.ev import BLIND_ODDS, Outcomes, dealer_qualifies
 from decision.river import (
     RIVER_PLAY_MULTIPLIER,
     RiverAction,
-    dealer_qualifies,
     decide,
     enumerate_dealer_outcomes,
+    optimal_ev,
 )
 from decision.evaluator import HandClass, parse_cards as cards
 
@@ -226,6 +226,27 @@ def test_the_verdict_always_agrees_with_the_breakeven_threshold(hole, board):
     d = decide(c(hole), c(board))
     assert d.breakeven is not None
     assert (d.equity > d.breakeven) is (d.action is RiverAction.BET)
+
+
+@pytest.mark.parametrize(
+    "hole,board",
+    [
+        ("Ah Kd", "Qc 9h 5s 3d 2c"),  # a raise
+        ("7c 2d", "As Kh Qd 9c 4s"),  # a fold
+    ],
+)
+def test_optimal_ev_is_the_ev_of_the_action_actually_taken(hole, board):
+    """The shared "play this river optimally" value (spec 3c pricing checking).
+
+    flop.py multiplies this by the runouts to price what checking is worth, so
+    it has to be the value the river would really deliver -- the EV of whichever
+    action the verdict picks -- and never below folding's cost.
+    """
+    d = decide(c(hole), c(board))
+    taken = d.ev_bet if d.action is RiverAction.BET else d.ev_fold
+
+    assert optimal_ev(d.outcomes, d.blind_multiplier) == pytest.approx(taken)
+    assert optimal_ev(d.outcomes, d.blind_multiplier) >= d.ev_fold
 
 
 def test_decide_rejects_an_incomplete_board():

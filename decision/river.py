@@ -18,20 +18,15 @@ from enum import Enum
 from itertools import combinations
 from typing import Sequence
 
-from decision.evaluator import (
-    HandClass,
-    best_hand_rank,
-    hand_class,
-    hand_name,
-    remaining_deck,
-)
+from decision.evaluator import best_hand_rank, hand_name, remaining_deck
 from decision.ev import (
     BUCKETS,
     PAYOUT_TABLE,
-    PayoutTable,
     Outcomes,
+    PayoutTable,
     blind_multiplier_for_score,
-    breakeven_win_rate,
+    breakeven_or_none,
+    dealer_qualifies,
     ev_of_bet,
     ev_of_fold,
 )
@@ -41,8 +36,8 @@ __all__ = [
     "BOARD_SIZE",
     "RiverAction",
     "RiverDecision",
-    "dealer_qualifies",
     "enumerate_dealer_outcomes",
+    "optimal_ev",
     "decide",
 ]
 
@@ -101,15 +96,6 @@ class RiverDecision:
         )
 
 
-def dealer_qualifies(score: int) -> bool:
-    """Spec 9: the dealer qualifies with a pair or better.
-
-    :class:`~decision.evaluator.HandClass` is ordered strongest-first, so
-    "pair or better" is everything at or below ``PAIR``.
-    """
-    return hand_class(score) <= HandClass.PAIR
-
-
 def enumerate_dealer_outcomes(
     hole: Sequence[int], board: Sequence[int]
 ) -> dict[str, int]:
@@ -138,30 +124,26 @@ def enumerate_dealer_outcomes(
     return counts
 
 
-def breakeven_or_none(
+def optimal_ev(
     outcomes: Outcomes,
-    multiplier: float,
-    blind_multiplier: float,
-    table: PayoutTable,
-) -> float | None:
-    """The win rate at which this decision flips, or ``None`` if undefined.
+    blind_multiplier: float = 0.0,
+    table: PayoutTable = PAYOUT_TABLE,
+) -> float:
+    """EV of playing this board's river optimally: the better of bet 1x and fold.
 
-    The threshold is derived from the *measured* conditional qualify rates, so
-    it needs at least one win and at least one loss to be defined. A hand that
-    can never win (or can never lose) has no meaningful crossover point: the
-    answer would depend on what kind of wins or losses were being hypothesised.
-    Returning ``None`` is honest; the decision itself does not need this number
-    and is computed from the exact EV regardless.
+    The *definition* of the river decision, in one place, so the flop (3c) can
+    price what checking is worth without restating it. Checking the flop buys
+    exactly this and nothing more: the turn and river arrive, and the hand is
+    then played as well as it can be.
+
+    :func:`decide` reaches its verdict by comparing the same two EVs directly
+    rather than calling through here. That is equivalent: ``max`` picks fold on
+    a tie, and at a tie the two EVs are equal, so the value is the same either
+    way.
     """
-    if outcomes.win <= 0.0 or outcomes.lose <= 0.0:
-        return None
-    return breakeven_win_rate(
-        multiplier,
-        tie_rate=outcomes.push,
-        qualify_on_win=outcomes.win_qualified / outcomes.win,
-        qualify_on_lose=outcomes.lose_qualified / outcomes.lose,
-        blind_multiplier=blind_multiplier,
-        table=table,
+    return max(
+        ev_of_bet(RIVER_PLAY_MULTIPLIER, outcomes, blind_multiplier, table),
+        ev_of_fold(table),
     )
 
 

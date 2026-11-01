@@ -84,16 +84,11 @@ from decision.ev import (
     PAYOUT_TABLE,
     Outcomes,
     PayoutTable,
+    breakeven_or_none,
+    dealer_qualifies,
     ev_of_bet,
     ev_of_fold,
 )
-# Both of these are street-agnostic: `dealer_qualifies` is spec 9's "pair or
-# better" rule, and `breakeven_or_none` is the measured-rates wrapper around
-# ev.breakeven_win_rate. They live in river.py only because the river was built
-# first. Importing them keeps a single implementation rather than a second copy
-# that can drift; relocating both into decision/ev.py would be the cleaner home,
-# and is left as a follow-up so this step stays a one-file change.
-from decision.river import breakeven_or_none, dealer_qualifies
 
 __all__ = [
     "FLOP_PLAY_MULTIPLIER",

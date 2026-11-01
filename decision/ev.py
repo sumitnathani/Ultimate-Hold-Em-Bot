@@ -86,6 +86,8 @@ __all__ = [
     "should_bet",
     "outcomes_from_win_rate",
     "breakeven_win_rate",
+    "dealer_qualifies",
+    "breakeven_or_none",
 ]
 
 ANTE_STAKE = 1.0
@@ -209,6 +211,20 @@ def blind_multiplier_for_score(score: int, table: PayoutTable = PAYOUT_TABLE) ->
     return blind_multiplier_for(hand_class(score), table)
 
 
+def dealer_qualifies(score: int) -> bool:
+    """Spec 9: the dealer qualifies with a pair or better.
+
+    :class:`~decision.evaluator.HandClass` is ordered strongest-first, so
+    "pair or better" is everything at or below ``PAIR``.
+
+    Qualification is a property of the *payout rules*, not of any one street, so
+    it lives here rather than in river.py -- the flop (3c) and the pre-flop
+    table (3d) both need it. It sat in river.py only because the river was built
+    first.
+    """
+    return hand_class(score) <= HandClass.PAIR
+
+
 def bucket_payoffs(
     multiplier: float,
     blind_multiplier: float = 0.0,
@@ -323,13 +339,21 @@ def breakeven_win_rate(
     qualify_on_win: float,
     qualify_on_lose: float,
     blind_multiplier: float = 0.0,
+    baseline: float | None = None,
     table: PayoutTable = PAYOUT_TABLE,
 ) -> float:
-    """Win rate at which raising ``multiplier`` exactly matches folding.
+    """Win rate at which raising ``multiplier`` exactly matches the alternative.
 
-    Below this, folding is the better play; above it, raise. It is emphatically
-    **not** 50% -- see the module docstring for why folding's 2-unit cost
-    dominates.
+    Below this the alternative is the better play; above it, raise. It is
+    emphatically **not** 50% -- see the module docstring for why the cost of
+    giving the hand up dominates.
+
+    ``baseline`` is the EV the raise has to beat, defaulting to
+    :func:`ev_of_fold`. That default is right for the river, where folding
+    genuinely is the alternative. A street whose alternative is *not* folding
+    passes its own value -- the flop (3c) passes the EV of *checking*, which
+    keeps the Ante and Blind alive and so is strictly better than folding,
+    making the flop's bar correspondingly higher.
 
     Solved numerically against :func:`ev_of_bet` rather than by a rearranged
     closed form, deliberately: the threshold can then never drift out of sync
@@ -337,7 +361,7 @@ def breakeven_win_rate(
     monotone) in ``p_win`` with the tie rate held fixed, so bisection is exact
     to float precision.
     """
-    target = ev_of_fold(table)
+    target = ev_of_fold(table) if baseline is None else baseline
 
     def ev_at(p_win: float) -> float:
         return ev_of_bet(
@@ -357,8 +381,9 @@ def breakeven_win_rate(
         return lo  # raising beats folding even at a 0% win rate
     if ev_at(hi) <= target:
         raise ValueError(
-            "no breakeven in [0, 1 - tie_rate]: raising never beats folding, "
-            "which means the payout table is misconfigured"
+            "no breakeven in [0, 1 - tie_rate]: raising never beats the "
+            "baseline, which means the payout table or the baseline is "
+            "misconfigured"
         )
 
     for _ in range(100):
@@ -368,3 +393,37 @@ def breakeven_win_rate(
         else:
             hi = mid
     return (lo + hi) / 2.0
+
+
+def breakeven_or_none(
+    outcomes: Outcomes,
+    multiplier: float,
+    blind_multiplier: float,
+    table: PayoutTable = PAYOUT_TABLE,
+    *,
+    baseline: float | None = None,
+) -> float | None:
+    """The win rate at which a decision flips, or ``None`` if undefined.
+
+    Wraps :func:`breakeven_win_rate` for callers that already hold a measured
+    :class:`Outcomes`. The threshold is derived from the *measured* conditional
+    qualify rates, so it needs at least one win and at least one loss to be
+    defined. A hand that can never win (or can never lose) has no meaningful
+    crossover point: the answer would depend on what kind of wins or losses were
+    being hypothesised. Returning ``None`` is honest; a caller's decision does
+    not need this number, since it is computed from the exact EV regardless.
+
+    Moved here from river.py: it is street-agnostic, and the flop (3c) needs it
+    too -- with its own ``baseline``, since the flop's alternative is checking.
+    """
+    if outcomes.win <= 0.0 or outcomes.lose <= 0.0:
+        return None
+    return breakeven_win_rate(
+        multiplier,
+        tie_rate=outcomes.push,
+        qualify_on_win=outcomes.win_qualified / outcomes.win,
+        qualify_on_lose=outcomes.lose_qualified / outcomes.lose,
+        blind_multiplier=blind_multiplier,
+        baseline=baseline,
+        table=table,
+    )

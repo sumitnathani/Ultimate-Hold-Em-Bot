@@ -23,6 +23,7 @@ from decision.ev import (
     PayoutTable,
     blind_multiplier_for,
     blind_multiplier_for_score,
+    breakeven_or_none,
     breakeven_win_rate,
     bucket_payoffs,
     ev_advantage,
@@ -287,6 +288,51 @@ def test_a_richer_blind_lowers_the_breakeven():
     without = breakeven_win_rate(1, **RIVER_LIKE)
     with_flush_blind = breakeven_win_rate(1, blind_multiplier=1.5, **RIVER_LIKE)
     assert with_flush_blind < without
+
+
+def test_breakeven_baseline_defaults_to_folding():
+    """Omitting ``baseline`` must reproduce the fold-anchored threshold exactly.
+
+    The river depends on this: for it, folding really is the alternative.
+    """
+    default = breakeven_win_rate(1, **RIVER_LIKE)
+    assert breakeven_win_rate(1, baseline=None, **RIVER_LIKE) == pytest.approx(default)
+    assert breakeven_win_rate(1, baseline=ev_of_fold(), **RIVER_LIKE) == pytest.approx(default)
+
+
+def test_a_higher_baseline_raises_the_breakeven():
+    """The flop's case: checking beats folding, so the bar to bet is higher.
+
+    The flop (3c) passes the EV of *checking* as its baseline rather than
+    folding's -2, because checking keeps the turn and river alive and so is
+    strictly better than giving the hand up. A baseline above ``ev_of_fold``
+    must therefore demand a better hand before raising is worthwhile.
+    """
+    vs_fold = breakeven_win_rate(1, **RIVER_LIKE)
+    vs_check = breakeven_win_rate(1, baseline=-0.5, **RIVER_LIKE)
+
+    assert vs_check > vs_fold
+    # And the root really is the baseline it was handed, not folding.
+    ev_at_root = ev_of_bet(1, outcomes_from_win_rate(vs_check, **RIVER_LIKE))
+    assert ev_at_root == pytest.approx(-0.5)
+
+
+def test_breakeven_or_none_passes_the_baseline_through():
+    """The wrapper must not quietly fall back to folding."""
+    outcomes = outcomes_from_win_rate(0.5, **RIVER_LIKE)
+
+    assert breakeven_or_none(outcomes, 1, 0.0) == pytest.approx(
+        breakeven_win_rate(1, **RIVER_LIKE)
+    )
+    assert breakeven_or_none(outcomes, 1, 0.0, baseline=-0.5) == pytest.approx(
+        breakeven_win_rate(1, baseline=-0.5, **RIVER_LIKE)
+    )
+
+
+def test_breakeven_or_none_is_undefined_without_wins_or_losses():
+    """A hand that can never win, or never lose, has no crossover point."""
+    assert breakeven_or_none(Outcomes(win_qualified=1.0), 1, 0.0) is None
+    assert breakeven_or_none(Outcomes(lose_qualified=1.0), 1, 0.0) is None
 
 
 # --------------------------------------------------------------------------
