@@ -1,0 +1,2717 @@
+{
+  "meta": {
+    "version": 1,
+    "seed": 20261101,
+    "trials": 2000000,
+    "boards": 6000,
+    "generated": "2026-11-01T05:30:37Z",
+    "representatives": {
+      "AA": "As Ah",
+      "KK": "Ks Kh",
+      "QQ": "Qs Qh",
+      "JJ": "Js Jh",
+      "TT": "Ts Th",
+      "99": "9s 9h",
+      "88": "8s 8h",
+      "77": "7s 7h",
+      "66": "6s 6h",
+      "55": "5s 5h",
+      "44": "4s 4h",
+      "33": "3s 3h",
+      "22": "2s 2h",
+      "AKs": "Ks As",
+      "AQs": "Qs As",
+      "AJs": "Js As",
+      "ATs": "Ts As",
+      "A9s": "9s As",
+      "A8s": "8s As",
+      "A7s": "7s As",
+      "A6s": "6s As",
+      "A5s": "5s As",
+      "A4s": "4s As",
+      "A3s": "3s As",
+      "A2s": "2s As",
+      "KQs": "Qs Ks",
+      "KJs": "Js Ks",
+      "KTs": "Ts Ks",
+      "K9s": "9s Ks",
+      "K8s": "8s Ks",
+      "K7s": "7s Ks",
+      "K6s": "6s Ks",
+      "K5s": "5s Ks",
+      "K4s": "4s Ks",
+      "K3s": "3s Ks",
+      "K2s": "2s Ks",
+      "QJs": "Js Qs",
+      "QTs": "Ts Qs",
+      "Q9s": "9s Qs",
+      "Q8s": "8s Qs",
+      "Q7s": "7s Qs",
+      "Q6s": "6s Qs",
+      "Q5s": "5s Qs",
+      "Q4s": "4s Qs",
+      "Q3s": "3s Qs",
+      "Q2s": "2s Qs",
+      "JTs": "Ts Js",
+      "J9s": "9s Js",
+      "J8s": "8s Js",
+      "J7s": "7s Js",
+      "J6s": "6s Js",
+      "J5s": "5s Js",
+      "J4s": "4s Js",
+      "J3s": "3s Js",
+      "J2s": "2s Js",
+      "T9s": "9s Ts",
+      "T8s": "8s Ts",
+      "T7s": "7s Ts",
+      "T6s": "6s Ts",
+      "T5s": "5s Ts",
+      "T4s": "4s Ts",
+      "T3s": "3s Ts",
+      "T2s": "2s Ts",
+      "98s": "8s 9s",
+      "97s": "7s 9s",
+      "96s": "6s 9s",
+      "95s": "5s 9s",
+      "94s": "4s 9s",
+      "93s": "3s 9s",
+      "92s": "2s 9s",
+      "87s": "7s 8s",
+      "86s": "6s 8s",
+      "85s": "5s 8s",
+      "84s": "4s 8s",
+      "83s": "3s 8s",
+      "82s": "2s 8s",
+      "76s": "6s 7s",
+      "75s": "5s 7s",
+      "74s": "4s 7s",
+      "73s": "3s 7s",
+      "72s": "2s 7s",
+      "65s": "5s 6s",
+      "64s": "4s 6s",
+      "63s": "3s 6s",
+      "62s": "2s 6s",
+      "54s": "4s 5s",
+      "53s": "3s 5s",
+      "52s": "2s 5s",
+      "43s": "3s 4s",
+      "42s": "2s 4s",
+      "32s": "2s 3s",
+      "AKo": "Ks Ah",
+      "AQo": "Qs Ah",
+      "AJo": "Js Ah",
+      "ATo": "Ts Ah",
+      "A9o": "9s Ah",
+      "A8o": "8s Ah",
+      "A7o": "7s Ah",
+      "A6o": "6s Ah",
+      "A5o": "5s Ah",
+      "A4o": "4s Ah",
+      "A3o": "3s Ah",
+      "A2o": "2s Ah",
+      "KQo": "Qs Kh",
+      "KJo": "Js Kh",
+      "KTo": "Ts Kh",
+      "K9o": "9s Kh",
+      "K8o": "8s Kh",
+      "K7o": "7s Kh",
+      "K6o": "6s Kh",
+      "K5o": "5s Kh",
+      "K4o": "4s Kh",
+      "K3o": "3s Kh",
+      "K2o": "2s Kh",
+      "QJo": "Js Qh",
+      "QTo": "Ts Qh",
+      "Q9o": "9s Qh",
+      "Q8o": "8s Qh",
+      "Q7o": "7s Qh",
+      "Q6o": "6s Qh",
+      "Q5o": "5s Qh",
+      "Q4o": "4s Qh",
+      "Q3o": "3s Qh",
+      "Q2o": "2s Qh",
+      "JTo": "Ts Jh",
+      "J9o": "9s Jh",
+      "J8o": "8s Jh",
+      "J7o": "7s Jh",
+      "J6o": "6s Jh",
+      "J5o": "5s Jh",
+      "J4o": "4s Jh",
+      "J3o": "3s Jh",
+      "J2o": "2s Jh",
+      "T9o": "9s Th",
+      "T8o": "8s Th",
+      "T7o": "7s Th",
+      "T6o": "6s Th",
+      "T5o": "5s Th",
+      "T4o": "4s Th",
+      "T3o": "3s Th",
+      "T2o": "2s Th",
+      "98o": "8s 9h",
+      "97o": "7s 9h",
+      "96o": "6s 9h",
+      "95o": "5s 9h",
+      "94o": "4s 9h",
+      "93o": "3s 9h",
+      "92o": "2s 9h",
+      "87o": "7s 8h",
+      "86o": "6s 8h",
+      "85o": "5s 8h",
+      "84o": "4s 8h",
+      "83o": "3s 8h",
+      "82o": "2s 8h",
+      "76o": "6s 7h",
+      "75o": "5s 7h",
+      "74o": "4s 7h",
+      "73o": "3s 7h",
+      "72o": "2s 7h",
+      "65o": "5s 6h",
+      "64o": "4s 6h",
+      "63o": "3s 6h",
+      "62o": "2s 6h",
+      "54o": "4s 5h",
+      "53o": "3s 5h",
+      "52o": "2s 5h",
+      "43o": "3s 4h",
+      "42o": "2s 4h",
+      "32o": "2s 3h"
+    }
+  },
+  "classes": {
+    "AA": {
+      "counts": {
+        "win_qualified": 1362334,
+        "win_unqualified": 336859,
+        "push": 10838,
+        "lose_qualified": 289969,
+        "lose_unqualified": 0
+      },
+      "trials": 2000000,
+      "wins": 1699193,
+      "blind_multiplier": 0.46100501826455265,
+      "check_value": 1.460480808080809,
+      "boards": 6000,
+      "check_value_se": 0.01998497596850254
+    },
+    "KK": {
+      "counts": {
+        "win_qualified": 1304524,
+        "win_unqualified": 336986,
+        "push": 11100,
+        "lose_qualified": 347390,
+        "lose_unqualified": 0
+      },
+      "trials": 2000000,
+      "wins": 1641510,
+      "blind_multiplier": 0.476991611382203,
+      "check_value": 1.3365099326599228,
+      "boards": 6000,
+      "check_value_se": 0.0210651990684285
+    },
+    "QQ": {
+      "counts": {
+        "win_qualified": 1253529,
+        "win_unqualified": 339116,
+        "push": 11569,
+        "lose_qualified": 395786,
+        "lose_unqualified": 0
+      },
+      "trials": 2000000,
+      "wins": 1592645,
+      "blind_multiplier": 0.5014554404779471,
+      "check_value": 1.2170235690235633,
+      "boards": 6000,
+      "check_value_se": 0.024260058046342996
+    },
+    "JJ": {
+      "counts": {
+        "win_qualified": 1201790,
+        "win_unqualified": 340947,
+        "push": 12822,
+        "lose_qualified": 444441,
+        "lose_unqualified": 0
+      },
+      "trials": 2000000,
+      "wins": 1542737,
+      "blind_multiplier": 0.5150605709203837,
+      "check_value": 1.0617869528619508,
+      "boards": 6000,
+      "check_value_se": 0.02097667154334239
+    },
+    "TT": {
+      "counts": {
+        "win_qualified": 1148415,
+        "win_unqualified": 345133,
+        "push": 14161,
+        "lose_qualified": 492291,
+        "lose_unqualified": 0
+      },
+      "trials": 2000000,
+      "wins": 1493548,
+      "blind_multiplier": 0.5311148352781431,
+      "check_value": 1.0075366161616113,
+      "boards": 6000,
+      "check_value_se": 0.08622080668728994
+    },
+    "99": {
+      "counts": {
+        "win_qualified": 1090554,
+        "win_unqualified": 342192,
+        "push": 15600,
+        "lose_qualified": 551654,
+        "lose_unqualified": 0
+      },
+      "trials": 2000000,
+      "wins": 1432746,
+      "blind_multiplier": 0.52203565740194,
+      "check_value": 0.7652552188552205,
+      "boards": 6000,
+      "check_value_se": 0.02229188614882288
+    },
+    "88": {
+      "counts": {
+        "win_qualified": 1031280,
+        "win_unqualified": 342285,
+        "push": 17877,
+        "lose_qualified": 608558,
+        "lose_unqualified": 0
+      },
+      "trials": 2000000,
+      "wins": 1373565,
+      "blind_multiplier": 0.5386741799623607,
+      "check_value": 0.634953703703711,
+      "boards": 6000,
+      "check_value_se": 0.022181626854260394
+    },
+    "77": {
+      "counts": {
+        "win_qualified": 970020,
+        "win_unqualified": 343915,
+        "push": 20262,
+        "lose_qualified": 665803,
+        "lose_unqualified": 0
+      },
+      "trials": 2000000,
+      "wins": 1313935,
+      "blind_multiplier": 0.5578065124987157,
+      "check_value": 0.49304579124579656,
+      "boards": 6000,
+      "check_value_se": 0.024693673176204998
+    },
+    "66": {
+      "counts": {
+        "win_qualified": 911145,
+        "win_unqualified": 342382,
+        "push": 23450,
+        "lose_qualified": 723023,
+        "lose_unqualified": 0
+      },
+      "trials": 2000000,
+      "wins": 1253527,
+      "blind_multiplier": 0.5818602231942351,
+      "check_value": 0.3657760101010081,
+      "boards": 6000,
+      "check_value_se": 0.02830656562885933
+    },
+    "55": {
+      "counts": {
+        "win_qualified": 849128,
+        "win_unqualified": 343906,
+        "push": 27488,
+        "lose_qualified": 779478,
+        "lose_unqualified": 0
+      },
+      "trials": 2000000,
+      "wins": 1193034,
+      "blind_multiplier": 0.6044328996491298,
+      "check_value": 0.18913989898989905,
+      "boards": 6000,
+      "check_value_se": 0.024542065109964796
+    },
+    "44": {
+      "counts": {
+        "win_qualified": 783123,
+        "win_unqualified": 341951,
+        "push": 30710,
+        "lose_qualified": 844216,
+        "lose_unqualified": 0
+      },
+      "trials": 2000000,
+      "wins": 1125074,
+      "blind_multiplier": 0.6251082151040731,
+      "check_value": 0.07725151515151546,
+      "boards": 6000,
+      "check_value_se": 0.02709457496980588
+    },
+    "33": {
+      "counts": {
+        "win_qualified": 717768,
+        "win_unqualified": 339012,
+        "push": 34116,
+        "lose_qualified": 909104,
+        "lose_unqualified": 0
+      },
+      "trials": 2000000,
+      "wins": 1056780,
+      "blind_multiplier": 0.6497109142867957,
+      "check_value": -0.1194085016834999,
+      "boards": 6000,
+      "check_value_se": 0.02771605965477439
+    },
+    "22": {
+      "counts": {
+        "win_qualified": 650852,
+        "win_unqualified": 336663,
+        "push": 37828,
+        "lose_qualified": 974657,
+        "lose_unqualified": 0
+      },
+      "trials": 2000000,
+      "wins": 987515,
+      "blind_multiplier": 0.6757583429112469,
+      "check_value": -0.2765892255892253,
+      "boards": 6000,
+      "check_value_se": 0.02610700559882335
+    },
+    "AKs": {
+      "counts": {
+        "win_qualified": 982757,
+        "win_unqualified": 341680,
+        "push": 32908,
+        "lose_qualified": 642655,
+        "lose_unqualified": 0
+      },
+      "trials": 2000000,
+      "wins": 1324437,
+      "blind_multiplier": 0.6730992112120093,
+      "check_value": 0.5816103535353542,
+      "boards": 6000,
+      "check_value_se": 0.12008978612311297
+    },
+    "AQs": {
+      "counts": {
+        "win_qualified": 966381,
+        "win_unqualified": 339691,
+        "push": 35624,
+        "lose_qualified": 656000,
+        "lose_unqualified": 2304
+      },
+      "trials": 2000000,
+      "wins": 1306072,
+      "blind_multiplier": 0.6784951365621497,
+      "check_value": 0.4357300505050463,
+      "boards": 6000,
+      "check_value_se": 0.08638302630411962
+    },
+    "AJs": {
+      "counts": {
+        "win_qualified": 949146,
+        "win_unqualified": 339301,
+        "push": 39785,
+        "lose_qualified": 667045,
+        "lose_unqualified": 4723
+      },
+      "trials": 2000000,
+      "wins": 1288447,
+      "blind_multiplier": 0.700362141399685,
+      "check_value": 0.590333922558919,
+      "boards": 6000,
+      "check_value_se": 0.14613053565080486
+    },
+    "ATs": {
+      "counts": {
+        "win_qualified": 931491,
+        "win_unqualified": 337456,
+        "push": 44634,
+        "lose_qualified": 679543,
+        "lose_unqualified": 6876
+      },
+      "trials": 2000000,
+      "wins": 1268947,
+      "blind_multiplier": 0.7350303046541738,
+      "check_value": 0.7184551346801339,
+      "boards": 6000,
+      "check_value_se": 0.18800571980278244
+    },
+    "A9s": {
+      "counts": {
+        "win_qualified": 893270,
+        "win_unqualified": 335754,
+        "push": 51290,
+        "lose_qualified": 711252,
+        "lose_unqualified": 8434
+      },
+      "trials": 2000000,
+      "wins": 1229024,
+      "blind_multiplier": 0.31978667625693236,
+      "check_value": 0.19935664983165102,
+      "boards": 6000,
+      "check_value_se": 0.02165127894717454
+    },
+    "A8s": {
+      "counts": {
+        "win_qualified": 878436,
+        "win_unqualified": 332437,
+        "push": 57267,
+        "lose_qualified": 721335,
+        "lose_unqualified": 10525
+      },
+      "trials": 2000000,
+      "wins": 1210873,
+      "blind_multiplier": 0.3345226956088706,
+      "check_value": 0.1346081649831644,
+      "boards": 6000,
+      "check_value_se": 0.021510773534210322
+    },
+    "A7s": {
+      "counts": {
+        "win_qualified": 857944,
+        "win_unqualified": 329821,
+        "push": 63640,
+        "lose_qualified": 736086,
+        "lose_unqualified": 12509
+      },
+      "trials": 2000000,
+      "wins": 1187765,
+      "blind_multiplier": 0.3447399106725657,
+      "check_value": 0.09438569023569046,
+      "boards": 6000,
+      "check_value_se": 0.0199424109681562
+    },
+    "A6s": {
+      "counts": {
+        "win_qualified": 838878,
+        "win_unqualified": 324667,
+        "push": 68869,
+        "lose_qualified": 753686,
+        "lose_unqualified": 13900
+      },
+      "trials": 2000000,
+      "wins": 1163545,
+      "blind_multiplier": 0.3395077113476488,
+      "check_value": 0.07225269360269337,
+      "boards": 6000,
+      "check_value_se": 0.02015667931801326
+    },
+    "A5s": {
+      "counts": {
+        "win_qualified": 836347,
+        "win_unqualified": 323961,
+        "push": 74547,
+        "lose_qualified": 751131,
+        "lose_unqualified": 14014
+      },
+      "trials": 2000000,
+      "wins": 1160308,
+      "blind_multiplier": 0.40337134622876,
+      "check_value": 0.12140664983164995,
+      "boards": 6000,
+      "check_value_se": 0.02672096671511213
+    },
+    "A4s": {
+      "counts": {
+        "win_qualified": 822284,
+        "win_unqualified": 319788,
+        "push": 75631,
+        "lose_qualified": 767719,
+        "lose_unqualified": 14578
+      },
+      "trials": 2000000,
+      "wins": 1142072,
+      "blind_multiplier": 0.4086721327552028,
+      "check_value": 0.006988973063973107,
+      "boards": 6000,
+      "check_value_se": 0.022596231789714753
+    },
+    "A3s": {
+      "counts": {
+        "win_qualified": 806953,
+        "win_unqualified": 319416,
+        "push": 75544,
+        "lose_qualified": 783529,
+        "lose_unqualified": 14558
+      },
+      "trials": 2000000,
+      "wins": 1126369,
+      "blind_multiplier": 0.4008135877319067,
+      "check_value": 0.045287037037037126,
+      "boards": 6000,
+      "check_value_se": 0.0284342290625247
+    },
+    "A2s": {
+      "counts": {
+        "win_qualified": 791049,
+        "win_unqualified": 317800,
+        "push": 75065,
+        "lose_qualified": 801035,
+        "lose_unqualified": 15051
+      },
+      "trials": 2000000,
+      "wins": 1108849,
+      "blind_multiplier": 0.3927045071060171,
+      "check_value": -0.014380471380471273,
+      "boards": 6000,
+      "check_value_se": 0.027260380849214626
+    },
+    "KQs": {
+      "counts": {
+        "win_qualified": 923402,
+        "win_unqualified": 325943,
+        "push": 39356,
+        "lose_qualified": 693988,
+        "lose_unqualified": 17311
+      },
+      "trials": 2000000,
+      "wins": 1249345,
+      "blind_multiplier": 0.7919962060119503,
+      "check_value": 0.339998400673402,
+      "boards": 6000,
+      "check_value_se": 0.08794086170105857
+    },
+    "KJs": {
+      "counts": {
+        "win_qualified": 905484,
+        "win_unqualified": 323771,
+        "push": 43965,
+        "lose_qualified": 707428,
+        "lose_unqualified": 19352
+      },
+      "trials": 2000000,
+      "wins": 1229255,
+      "blind_multiplier": 0.80783686053748,
+      "check_value": 0.6097404040404032,
+      "boards": 6000,
+      "check_value_se": 0.1881250979705038
+    },
+    "KTs": {
+      "counts": {
+        "win_qualified": 888536,
+        "win_unqualified": 323164,
+        "push": 48191,
+        "lose_qualified": 718195,
+        "lose_unqualified": 21914
+      },
+      "trials": 2000000,
+      "wins": 1211700,
+      "blind_multiplier": 0.8070735330527359,
+      "check_value": 0.775210690235691,
+      "boards": 6000,
+      "check_value_se": 0.2224621863726366
+    },
+    "K9s": {
+      "counts": {
+        "win_qualified": 852737,
+        "win_unqualified": 321144,
+        "push": 53517,
+        "lose_qualified": 749183,
+        "lose_unqualified": 23419
+      },
+      "trials": 2000000,
+      "wins": 1173881,
+      "blind_multiplier": 0.398818534417032,
+      "check_value": 0.14229436026936115,
+      "boards": 6000,
+      "check_value_se": 0.027277890517177005
+    },
+    "K8s": {
+      "counts": {
+        "win_qualified": 817720,
+        "win_unqualified": 318260,
+        "push": 60930,
+        "lose_qualified": 777203,
+        "lose_unqualified": 25887
+      },
+      "trials": 2000000,
+      "wins": 1135980,
+      "blind_multiplier": 0.34853430518142925,
+      "check_value": -0.02881060606060627,
+      "boards": 6000,
+      "check_value_se": 0.022416375764086418
+    },
+    "K7s": {
+      "counts": {
+        "win_qualified": 802891,
+        "win_unqualified": 313742,
+        "push": 67514,
+        "lose_qualified": 787941,
+        "lose_unqualified": 27912
+      },
+      "trials": 2000000,
+      "wins": 1116633,
+      "blind_multiplier": 0.3567649353010344,
+      "check_value": -0.07421641414141349,
+      "boards": 6000,
+      "check_value_se": 0.02095470433066261
+    },
+    "K6s": {
+      "counts": {
+        "win_qualified": 786654,
+        "win_unqualified": 310443,
+        "push": 73390,
+        "lose_qualified": 800121,
+        "lose_unqualified": 29392
+      },
+      "trials": 2000000,
+      "wins": 1097097,
+      "blind_multiplier": 0.36362919595988324,
+      "check_value": -0.11836624579124642,
+      "boards": 6000,
+      "check_value_se": 0.020650533680128407
+    },
+    "K5s": {
+      "counts": {
+        "win_qualified": 769241,
+        "win_unqualified": 306908,
+        "push": 78714,
+        "lose_qualified": 814403,
+        "lose_unqualified": 30734
+      },
+      "trials": 2000000,
+      "wins": 1076149,
+      "blind_multiplier": 0.3734626896461364,
+      "check_value": -0.12085193602693675,
+      "boards": 6000,
+      "check_value_se": 0.020986056593661557
+    },
+    "K4s": {
+      "counts": {
+        "win_qualified": 753588,
+        "win_unqualified": 303802,
+        "push": 80296,
+        "lose_qualified": 830541,
+        "lose_unqualified": 31773
+      },
+      "trials": 2000000,
+      "wins": 1057390,
+      "blind_multiplier": 0.37145991545219836,
+      "check_value": -0.19731792929292996,
+      "boards": 6000,
+      "check_value_se": 0.02247181937961968
+    },
+    "K3s": {
+      "counts": {
+        "win_qualified": 737687,
+        "win_unqualified": 303356,
+        "push": 79190,
+        "lose_qualified": 848028,
+        "lose_unqualified": 31739
+      },
+      "trials": 2000000,
+      "wins": 1041043,
+      "blind_multiplier": 0.37476453902480494,
+      "check_value": -0.2194518518518522,
+      "boards": 6000,
+      "check_value_se": 0.021362613638224948
+    },
+    "K2s": {
+      "counts": {
+        "win_qualified": 723591,
+        "win_unqualified": 302224,
+        "push": 78848,
+        "lose_qualified": 863645,
+        "lose_unqualified": 31692
+      },
+      "trials": 2000000,
+      "wins": 1025815,
+      "blind_multiplier": 0.3673771586494641,
+      "check_value": -0.24897398989899072,
+      "boards": 6000,
+      "check_value_se": 0.02254652234403312
+    },
+    "QJs": {
+      "counts": {
+        "win_qualified": 869385,
+        "win_unqualified": 311807,
+        "push": 47615,
+        "lose_qualified": 737801,
+        "lose_unqualified": 33392
+      },
+      "trials": 2000000,
+      "wins": 1181192,
+      "blind_multiplier": 0.8928793964063421,
+      "check_value": 0.4034622053872024,
+      "boards": 6000,
+      "check_value_se": 0.14779776494365382
+    },
+    "QTs": {
+      "counts": {
+        "win_qualified": 853058,
+        "win_unqualified": 310016,
+        "push": 52258,
+        "lose_qualified": 749019,
+        "lose_unqualified": 35649
+      },
+      "trials": 2000000,
+      "wins": 1163074,
+      "blind_multiplier": 0.926554974146099,
+      "check_value": 0.6796492424242432,
+      "boards": 6000,
+      "check_value_se": 0.20768993929607787
+    },
+    "Q9s": {
+      "counts": {
+        "win_qualified": 815339,
+        "win_unqualified": 308020,
+        "push": 57502,
+        "lose_qualified": 781854,
+        "lose_unqualified": 37285
+      },
+      "trials": 2000000,
+      "wins": 1123359,
+      "blind_multiplier": 0.4758265167235051,
+      "check_value": 0.013345622895622945,
+      "boards": 6000,
+      "check_value_se": 0.027819609299881035
+    },
+    "Q8s": {
+      "counts": {
+        "win_qualified": 783879,
+        "win_unqualified": 304317,
+        "push": 64450,
+        "lose_qualified": 807387,
+        "lose_unqualified": 39967
+      },
+      "trials": 2000000,
+      "wins": 1088196,
+      "blind_multiplier": 0.426764112347408,
+      "check_value": -0.05996026936026919,
+      "boards": 6000,
+      "check_value_se": 0.026932933927729122
+    },
+    "Q7s": {
+      "counts": {
+        "win_qualified": 751106,
+        "win_unqualified": 299255,
+        "push": 71221,
+        "lose_qualified": 835630,
+        "lose_unqualified": 42788
+      },
+      "trials": 2000000,
+      "wins": 1050361,
+      "blind_multiplier": 0.38144123782204403,
+      "check_value": -0.17565303030303023,
+      "boards": 6000,
+      "check_value_se": 0.021721442595277446
+    },
+    "Q6s": {
+      "counts": {
+        "win_qualified": 736830,
+        "win_unqualified": 296435,
+        "push": 77325,
+        "lose_qualified": 845019,
+        "lose_unqualified": 44391
+      },
+      "trials": 2000000,
+      "wins": 1033265,
+      "blind_multiplier": 0.3929427591179417,
+      "check_value": -0.2347239898989884,
+      "boards": 6000,
+      "check_value_se": 0.021593612552769943
+    },
+    "Q5s": {
+      "counts": {
+        "win_qualified": 721118,
+        "win_unqualified": 293620,
+        "push": 82094,
+        "lose_qualified": 857607,
+        "lose_unqualified": 45561
+      },
+      "trials": 2000000,
+      "wins": 1014738,
+      "blind_multiplier": 0.4015120159095254,
+      "check_value": -0.23913215488215317,
+      "boards": 6000,
+      "check_value_se": 0.024591694159976547
+    },
+    "Q4s": {
+      "counts": {
+        "win_qualified": 705328,
+        "win_unqualified": 290649,
+        "push": 83827,
+        "lose_qualified": 873592,
+        "lose_unqualified": 46604
+      },
+      "trials": 2000000,
+      "wins": 995977,
+      "blind_multiplier": 0.39601767912311225,
+      "check_value": -0.28888063973063877,
+      "boards": 6000,
+      "check_value_se": 0.021353337241170726
+    },
+    "Q3s": {
+      "counts": {
+        "win_qualified": 688766,
+        "win_unqualified": 289959,
+        "push": 83052,
+        "lose_qualified": 891698,
+        "lose_unqualified": 46525
+      },
+      "trials": 2000000,
+      "wins": 978725,
+      "blind_multiplier": 0.3968724616209865,
+      "check_value": -0.24033771043770907,
+      "boards": 6000,
+      "check_value_se": 0.08635880857028816
+    },
+    "Q2s": {
+      "counts": {
+        "win_qualified": 673297,
+        "win_unqualified": 289106,
+        "push": 83202,
+        "lose_qualified": 907693,
+        "lose_unqualified": 46702
+      },
+      "trials": 2000000,
+      "wins": 962403,
+      "blind_multiplier": 0.40097651399673523,
+      "check_value": -0.3523105218855219,
+      "boards": 6000,
+      "check_value_se": 0.025376547040527626
+    },
+    "JTs": {
+      "counts": {
+        "win_qualified": 823767,
+        "win_unqualified": 299754,
+        "push": 54837,
+        "lose_qualified": 774704,
+        "lose_unqualified": 46938
+      },
+      "trials": 2000000,
+      "wins": 1123521,
+      "blind_multiplier": 0.997464221852551,
+      "check_value": 0.25600631313130623,
+      "boards": 6000,
+      "check_value_se": 0.12248230329048503
+    },
+    "J9s": {
+      "counts": {
+        "win_qualified": 784120,
+        "win_unqualified": 297585,
+        "push": 61427,
+        "lose_qualified": 808198,
+        "lose_unqualified": 48670
+      },
+      "trials": 2000000,
+      "wins": 1081705,
+      "blind_multiplier": 0.5591131593179286,
+      "check_value": 0.0036719696969696814,
+      "boards": 6000,
+      "check_value_se": 0.031167966186613428
+    },
+    "J8s": {
+      "counts": {
+        "win_qualified": 752723,
+        "win_unqualified": 294359,
+        "push": 68043,
+        "lose_qualified": 833454,
+        "lose_unqualified": 51421
+      },
+      "trials": 2000000,
+      "wins": 1047082,
+      "blind_multiplier": 0.5119169272320602,
+      "check_value": -0.10374436026935965,
+      "boards": 6000,
+      "check_value_se": 0.03205901217034959
+    },
+    "J7s": {
+      "counts": {
+        "win_qualified": 718529,
+        "win_unqualified": 290231,
+        "push": 74906,
+        "lose_qualified": 861316,
+        "lose_unqualified": 55018
+      },
+      "trials": 2000000,
+      "wins": 1008760,
+      "blind_multiplier": 0.4675145723462469,
+      "check_value": -0.1701682659932661,
+      "boards": 6000,
+      "check_value_se": 0.029423460860381927
+    },
+    "J6s": {
+      "counts": {
+        "win_qualified": 688233,
+        "win_unqualified": 283957,
+        "push": 81288,
+        "lose_qualified": 888402,
+        "lose_unqualified": 58120
+      },
+      "trials": 2000000,
+      "wins": 972190,
+      "blind_multiplier": 0.4190225161748218,
+      "check_value": -0.31729309764309443,
+      "boards": 6000,
+      "check_value_se": 0.023794008689014587
+    },
+    "J5s": {
+      "counts": {
+        "win_qualified": 676047,
+        "win_unqualified": 281237,
+        "push": 86837,
+        "lose_qualified": 896630,
+        "lose_unqualified": 59249
+      },
+      "trials": 2000000,
+      "wins": 957284,
+      "blind_multiplier": 0.4327555876834879,
+      "check_value": -0.3592272727272723,
+      "boards": 6000,
+      "check_value_se": 0.02351272636357461
+    },
+    "J4s": {
+      "counts": {
+        "win_qualified": 659208,
+        "win_unqualified": 279176,
+        "push": 87899,
+        "lose_qualified": 913634,
+        "lose_unqualified": 60083
+      },
+      "trials": 2000000,
+      "wins": 938384,
+      "blind_multiplier": 0.42607557247352895,
+      "check_value": -0.391610858585858,
+      "boards": 6000,
+      "check_value_se": 0.027907436032302127
+    },
+    "J3s": {
+      "counts": {
+        "win_qualified": 643583,
+        "win_unqualified": 277609,
+        "push": 86991,
+        "lose_qualified": 931736,
+        "lose_unqualified": 60081
+      },
+      "trials": 2000000,
+      "wins": 921192,
+      "blind_multiplier": 0.4275053409061303,
+      "check_value": -0.48224141414141614,
+      "boards": 6000,
+      "check_value_se": 0.02315038469099231
+    },
+    "J2s": {
+      "counts": {
+        "win_qualified": 627500,
+        "win_unqualified": 276786,
+        "push": 86843,
+        "lose_qualified": 948807,
+        "lose_unqualified": 60064
+      },
+      "trials": 2000000,
+      "wins": 904286,
+      "blind_multiplier": 0.4293470207434374,
+      "check_value": -0.5100630471380472,
+      "boards": 6000,
+      "check_value_se": 0.02477631456639704
+    },
+    "T9s": {
+      "counts": {
+        "win_qualified": 759013,
+        "win_unqualified": 288656,
+        "push": 65868,
+        "lose_qualified": 828234,
+        "lose_unqualified": 58229
+      },
+      "trials": 2000000,
+      "wins": 1047669,
+      "blind_multiplier": 0.6461000564109466,
+      "check_value": 0.0025893097643097255,
+      "boards": 6000,
+      "check_value_se": 0.04176380514772183
+    },
+    "T8s": {
+      "counts": {
+        "win_qualified": 724033,
+        "win_unqualified": 285680,
+        "push": 73127,
+        "lose_qualified": 855770,
+        "lose_unqualified": 61390
+      },
+      "trials": 2000000,
+      "wins": 1009713,
+      "blind_multiplier": 0.6018135846522725,
+      "check_value": -0.05444335016834996,
+      "boards": 6000,
+      "check_value_se": 0.03679091473214609
+    },
+    "T7s": {
+      "counts": {
+        "win_qualified": 690765,
+        "win_unqualified": 281686,
+        "push": 79772,
+        "lose_qualified": 882578,
+        "lose_unqualified": 65199
+      },
+      "trials": 2000000,
+      "wins": 972451,
+      "blind_multiplier": 0.5614863885172621,
+      "check_value": -0.15052171717171692,
+      "boards": 6000,
+      "check_value_se": 0.08974551359829681
+    },
+    "T6s": {
+      "counts": {
+        "win_qualified": 661071,
+        "win_unqualified": 273202,
+        "push": 85486,
+        "lose_qualified": 911673,
+        "lose_unqualified": 68568
+      },
+      "trials": 2000000,
+      "wins": 934273,
+      "blind_multiplier": 0.5126633221767085,
+      "check_value": -0.3177033670033655,
+      "boards": 6000,
+      "check_value_se": 0.03082302668764899
+    },
+    "T5s": {
+      "counts": {
+        "win_qualified": 628905,
+        "win_unqualified": 269292,
+        "push": 91379,
+        "lose_qualified": 937611,
+        "lose_unqualified": 72813
+      },
+      "trials": 2000000,
+      "wins": 898197,
+      "blind_multiplier": 0.46143997363607314,
+      "check_value": -0.4667922558922543,
+      "boards": 6000,
+      "check_value_se": 0.025137241190996352
+    },
+    "T4s": {
+      "counts": {
+        "win_qualified": 616962,
+        "win_unqualified": 266568,
+        "push": 93078,
+        "lose_qualified": 951114,
+        "lose_unqualified": 72278
+      },
+      "trials": 2000000,
+      "wins": 883530,
+      "blind_multiplier": 0.4598587484295949,
+      "check_value": -0.4183179292929298,
+      "boards": 6000,
+      "check_value_se": 0.025601935422960128
+    },
+    "T3s": {
+      "counts": {
+        "win_qualified": 601727,
+        "win_unqualified": 265667,
+        "push": 92298,
+        "lose_qualified": 967832,
+        "lose_unqualified": 72476
+      },
+      "trials": 2000000,
+      "wins": 867394,
+      "blind_multiplier": 0.4647420895233308,
+      "check_value": -0.48479638047138135,
+      "boards": 6000,
+      "check_value_se": 0.02213427120497356
+    },
+    "T2s": {
+      "counts": {
+        "win_qualified": 586588,
+        "win_unqualified": 264870,
+        "push": 91759,
+        "lose_qualified": 984663,
+        "lose_unqualified": 72120
+      },
+      "trials": 2000000,
+      "wins": 851458,
+      "blind_multiplier": 0.46486967061205603,
+      "check_value": -0.5653382996632993,
+      "boards": 6000,
+      "check_value_se": 0.023638593171757035
+    },
+    "98s": {
+      "counts": {
+        "win_qualified": 699626,
+        "win_unqualified": 278262,
+        "push": 77868,
+        "lose_qualified": 877416,
+        "lose_unqualified": 66828
+      },
+      "trials": 2000000,
+      "wins": 977888,
+      "blind_multiplier": 0.6712583649661311,
+      "check_value": -0.21906641414141545,
+      "boards": 6000,
+      "check_value_se": 0.02901160503981957
+    },
+    "97s": {
+      "counts": {
+        "win_qualified": 665081,
+        "win_unqualified": 274809,
+        "push": 84940,
+        "lose_qualified": 905418,
+        "lose_unqualified": 69752
+      },
+      "trials": 2000000,
+      "wins": 939890,
+      "blind_multiplier": 0.6313877155837385,
+      "check_value": -0.2076361952861958,
+      "boards": 6000,
+      "check_value_se": 0.035985784095482164
+    },
+    "96s": {
+      "counts": {
+        "win_qualified": 634102,
+        "win_unqualified": 269169,
+        "push": 91173,
+        "lose_qualified": 931847,
+        "lose_unqualified": 73709
+      },
+      "trials": 2000000,
+      "wins": 903271,
+      "blind_multiplier": 0.5796959052155998,
+      "check_value": -0.33142979797979727,
+      "boards": 6000,
+      "check_value_se": 0.03032788137636252
+    },
+    "95s": {
+      "counts": {
+        "win_qualified": 602061,
+        "win_unqualified": 263231,
+        "push": 96268,
+        "lose_qualified": 960620,
+        "lose_unqualified": 77820
+      },
+      "trials": 2000000,
+      "wins": 865292,
+      "blind_multiplier": 0.5227749707613153,
+      "check_value": -0.3965867845117848,
+      "boards": 6000,
+      "check_value_se": 0.02967281722065805
+    },
+    "94s": {
+      "counts": {
+        "win_qualified": 569774,
+        "win_unqualified": 257777,
+        "push": 98064,
+        "lose_qualified": 992993,
+        "lose_unqualified": 81392
+      },
+      "trials": 2000000,
+      "wins": 827551,
+      "blind_multiplier": 0.4555060654872026,
+      "check_value": -0.5591137205387184,
+      "boards": 6000,
+      "check_value_se": 0.022479225876072234
+    },
+    "93s": {
+      "counts": {
+        "win_qualified": 559714,
+        "win_unqualified": 257235,
+        "push": 98663,
+        "lose_qualified": 1003611,
+        "lose_unqualified": 80777
+      },
+      "trials": 2000000,
+      "wins": 816949,
+      "blind_multiplier": 0.46211697425420684,
+      "check_value": -0.5901362794612793,
+      "boards": 6000,
+      "check_value_se": 0.02533990967638575
+    },
+    "92s": {
+      "counts": {
+        "win_qualified": 542400,
+        "win_unqualified": 256450,
+        "push": 97481,
+        "lose_qualified": 1022636,
+        "lose_unqualified": 81033
+      },
+      "trials": 2000000,
+      "wins": 798850,
+      "blind_multiplier": 0.4610465043500031,
+      "check_value": -0.6311834175084169,
+      "boards": 6000,
+      "check_value_se": 0.023563465593454434
+    },
+    "87s": {
+      "counts": {
+        "win_qualified": 644685,
+        "win_unqualified": 269038,
+        "push": 90418,
+        "lose_qualified": 920567,
+        "lose_unqualified": 75292
+      },
+      "trials": 2000000,
+      "wins": 913723,
+      "blind_multiplier": 0.7181520001138201,
+      "check_value": -0.22136220538720605,
+      "boards": 6000,
+      "check_value_se": 0.036838919866486554
+    },
+    "86s": {
+      "counts": {
+        "win_qualified": 612010,
+        "win_unqualified": 264280,
+        "push": 97199,
+        "lose_qualified": 948515,
+        "lose_unqualified": 77996
+      },
+      "trials": 2000000,
+      "wins": 876290,
+      "blind_multiplier": 0.6723230893882163,
+      "check_value": -0.29636927609427544,
+      "boards": 6000,
+      "check_value_se": 0.034649921390285415
+    },
+    "85s": {
+      "counts": {
+        "win_qualified": 581878,
+        "win_unqualified": 258720,
+        "push": 102279,
+        "lose_qualified": 975422,
+        "lose_unqualified": 81701
+      },
+      "trials": 2000000,
+      "wins": 840598,
+      "blind_multiplier": 0.6237178770351584,
+      "check_value": -0.44438080808080915,
+      "boards": 6000,
+      "check_value_se": 0.02876966620873486
+    },
+    "84s": {
+      "counts": {
+        "win_qualified": 548448,
+        "win_unqualified": 252015,
+        "push": 104050,
+        "lose_qualified": 1009192,
+        "lose_unqualified": 86295
+      },
+      "trials": 2000000,
+      "wins": 800463,
+      "blind_multiplier": 0.5526089275831613,
+      "check_value": -0.5203553030303043,
+      "boards": 6000,
+      "check_value_se": 0.03197672238000904
+    },
+    "83s": {
+      "counts": {
+        "win_qualified": 518031,
+        "win_unqualified": 247437,
+        "push": 103750,
+        "lose_qualified": 1041173,
+        "lose_unqualified": 89609
+      },
+      "trials": 2000000,
+      "wins": 765468,
+      "blind_multiplier": 0.48062165890670805,
+      "check_value": -0.658289983164984,
+      "boards": 6000,
+      "check_value_se": 0.02364332114946578
+    },
+    "82s": {
+      "counts": {
+        "win_qualified": 505570,
+        "win_unqualified": 247340,
+        "push": 103517,
+        "lose_qualified": 1054836,
+        "lose_unqualified": 88737
+      },
+      "trials": 2000000,
+      "wins": 752910,
+      "blind_multiplier": 0.48661659428085696,
+      "check_value": -0.6795449494949471,
+      "boards": 6000,
+      "check_value_se": 0.023560146079902995
+    },
+    "76s": {
+      "counts": {
+        "win_qualified": 597494,
+        "win_unqualified": 258863,
+        "push": 101684,
+        "lose_qualified": 960221,
+        "lose_unqualified": 81738
+      },
+      "trials": 2000000,
+      "wins": 856357,
+      "blind_multiplier": 0.755364877031425,
+      "check_value": -0.21498350168350183,
+      "boards": 6000,
+      "check_value_se": 0.040089058431893795
+    },
+    "75s": {
+      "counts": {
+        "win_qualified": 564804,
+        "win_unqualified": 253448,
+        "push": 107778,
+        "lose_qualified": 988648,
+        "lose_unqualified": 85322
+      },
+      "trials": 2000000,
+      "wins": 818252,
+      "blind_multiplier": 0.7212545768296319,
+      "check_value": -0.4034882154882167,
+      "boards": 6000,
+      "check_value_se": 0.031518237342615815
+    },
+    "74s": {
+      "counts": {
+        "win_qualified": 533793,
+        "win_unqualified": 248112,
+        "push": 109060,
+        "lose_qualified": 1020153,
+        "lose_unqualified": 88882
+      },
+      "trials": 2000000,
+      "wins": 781905,
+      "blind_multiplier": 0.6544855193405849,
+      "check_value": -0.5213170033670066,
+      "boards": 6000,
+      "check_value_se": 0.030995171193835762
+    },
+    "73s": {
+      "counts": {
+        "win_qualified": 501462,
+        "win_unqualified": 243443,
+        "push": 109037,
+        "lose_qualified": 1052939,
+        "lose_unqualified": 93119
+      },
+      "trials": 2000000,
+      "wins": 744905,
+      "blind_multiplier": 0.5809311254455266,
+      "check_value": -0.5889132154882176,
+      "boards": 6000,
+      "check_value_se": 0.02701414992438768
+    },
+    "72s": {
+      "counts": {
+        "win_qualified": 470251,
+        "win_unqualified": 238939,
+        "push": 108580,
+        "lose_qualified": 1085460,
+        "lose_unqualified": 96770
+      },
+      "trials": 2000000,
+      "wins": 709190,
+      "blind_multiplier": 0.5081360425273904,
+      "check_value": -0.7571060606060627,
+      "boards": 6000,
+      "check_value_se": 0.021896097919701332
+    },
+    "65s": {
+      "counts": {
+        "win_qualified": 554681,
+        "win_unqualified": 250509,
+        "push": 111627,
+        "lose_qualified": 996498,
+        "lose_unqualified": 86685
+      },
+      "trials": 2000000,
+      "wins": 805190,
+      "blind_multiplier": 0.8105844583266062,
+      "check_value": -0.25298779461279486,
+      "boards": 6000,
+      "check_value_se": 0.04623111780840276
+    },
+    "64s": {
+      "counts": {
+        "win_qualified": 523500,
+        "win_unqualified": 245468,
+        "push": 113782,
+        "lose_qualified": 1026498,
+        "lose_unqualified": 90752
+      },
+      "trials": 2000000,
+      "wins": 768968,
+      "blind_multiplier": 0.7460629050883781,
+      "check_value": -0.42150412457912484,
+      "boards": 6000,
+      "check_value_se": 0.040796418684099
+    },
+    "63s": {
+      "counts": {
+        "win_qualified": 493366,
+        "win_unqualified": 240381,
+        "push": 113905,
+        "lose_qualified": 1057909,
+        "lose_unqualified": 94439
+      },
+      "trials": 2000000,
+      "wins": 733747,
+      "blind_multiplier": 0.6809908592471247,
+      "check_value": -0.563054882154885,
+      "boards": 6000,
+      "check_value_se": 0.03261734730328981
+    },
+    "62s": {
+      "counts": {
+        "win_qualified": 461541,
+        "win_unqualified": 235321,
+        "push": 113200,
+        "lose_qualified": 1091277,
+        "lose_unqualified": 98661
+      },
+      "trials": 2000000,
+      "wins": 696862,
+      "blind_multiplier": 0.6068080911285161,
+      "check_value": -0.6385013468013474,
+      "boards": 6000,
+      "check_value_se": 0.03105839010226808
+    },
+    "54s": {
+      "counts": {
+        "win_qualified": 524556,
+        "win_unqualified": 246733,
+        "push": 116803,
+        "lose_qualified": 1024345,
+        "lose_unqualified": 87563
+      },
+      "trials": 2000000,
+      "wins": 771289,
+      "blind_multiplier": 0.8445919752518187,
+      "check_value": -0.4193253367003368,
+      "boards": 6000,
+      "check_value_se": 0.03370187657153495
+    },
+    "53s": {
+      "counts": {
+        "win_qualified": 493255,
+        "win_unqualified": 242718,
+        "push": 117537,
+        "lose_qualified": 1055186,
+        "lose_unqualified": 91304
+      },
+      "trials": 2000000,
+      "wins": 735973,
+      "blind_multiplier": 0.7773987632698482,
+      "check_value": -0.47944141414141456,
+      "boards": 6000,
+      "check_value_se": 0.03803365340915295
+    },
+    "52s": {
+      "counts": {
+        "win_qualified": 460411,
+        "win_unqualified": 236448,
+        "push": 116480,
+        "lose_qualified": 1090558,
+        "lose_unqualified": 96103
+      },
+      "trials": 2000000,
+      "wins": 696859,
+      "blind_multiplier": 0.7141502082917778,
+      "check_value": -0.5749608585858594,
+      "boards": 6000,
+      "check_value_se": 0.03366890593211583
+    },
+    "43s": {
+      "counts": {
+        "win_qualified": 475910,
+        "win_unqualified": 239499,
+        "push": 116476,
+        "lose_qualified": 1074710,
+        "lose_unqualified": 93405
+      },
+      "trials": 2000000,
+      "wins": 715409,
+      "blind_multiplier": 0.7910076613517583,
+      "check_value": -0.5248430976430949,
+      "boards": 6000,
+      "check_value_se": 0.03375366813793218
+    },
+    "42s": {
+      "counts": {
+        "win_qualified": 443552,
+        "win_unqualified": 234264,
+        "push": 116822,
+        "lose_qualified": 1108633,
+        "lose_unqualified": 96729
+      },
+      "trials": 2000000,
+      "wins": 677816,
+      "blind_multiplier": 0.7185430854391163,
+      "check_value": -0.6476995791245755,
+      "boards": 6000,
+      "check_value_se": 0.030051417627791857
+    },
+    "32s": {
+      "counts": {
+        "win_qualified": 427850,
+        "win_unqualified": 234511,
+        "push": 115654,
+        "lose_qualified": 1125272,
+        "lose_unqualified": 96713
+      },
+      "trials": 2000000,
+      "wins": 662361,
+      "blind_multiplier": 0.7178275894866999,
+      "check_value": -0.690151178451171,
+      "boards": 6000,
+      "check_value_se": 0.030820462055119735
+    },
+    "AKo": {
+      "counts": {
+        "win_qualified": 946894,
+        "win_unqualified": 341267,
+        "push": 34031,
+        "lose_qualified": 677808,
+        "lose_unqualified": 0
+      },
+      "trials": 2000000,
+      "wins": 1288161,
+      "blind_multiplier": 0.2349531619106618,
+      "check_value": 0.2233932659932652,
+      "boards": 6000,
+      "check_value_se": 0.02071804590943165
+    },
+    "AQo": {
+      "counts": {
+        "win_qualified": 930042,
+        "win_unqualified": 339907,
+        "push": 37092,
+        "lose_qualified": 690381,
+        "lose_unqualified": 2578
+      },
+      "trials": 2000000,
+      "wins": 1269949,
+      "blind_multiplier": 0.24387711632514378,
+      "check_value": 0.20001624579124563,
+      "boards": 6000,
+      "check_value_se": 0.022359966313063112
+    },
+    "AJo": {
+      "counts": {
+        "win_qualified": 912107,
+        "win_unqualified": 339260,
+        "push": 41512,
+        "lose_qualified": 701876,
+        "lose_unqualified": 5245
+      },
+      "trials": 2000000,
+      "wins": 1251367,
+      "blind_multiplier": 0.2502503262432204,
+      "check_value": 0.16331750841750764,
+      "boards": 6000,
+      "check_value_se": 0.021033559352988764
+    },
+    "ATo": {
+      "counts": {
+        "win_qualified": 895553,
+        "win_unqualified": 337907,
+        "push": 45965,
+        "lose_qualified": 713044,
+        "lose_unqualified": 7531
+      },
+      "trials": 2000000,
+      "wins": 1233460,
+      "blind_multiplier": 0.261478685972792,
+      "check_value": 0.10845799663299685,
+      "boards": 6000,
+      "check_value_se": 0.02036622025272456
+    },
+    "A9o": {
+      "counts": {
+        "win_qualified": 854273,
+        "win_unqualified": 335826,
+        "push": 52785,
+        "lose_qualified": 747813,
+        "lose_unqualified": 9303
+      },
+      "trials": 2000000,
+      "wins": 1190099,
+      "blind_multiplier": 0.22535940287320635,
+      "check_value": -0.03745101010101011,
+      "boards": 6000,
+      "check_value_se": 0.019832067866263382
+    },
+    "A8o": {
+      "counts": {
+        "win_qualified": 835079,
+        "win_unqualified": 331917,
+        "push": 59960,
+        "lose_qualified": 761314,
+        "lose_unqualified": 11730
+      },
+      "trials": 2000000,
+      "wins": 1166996,
+      "blind_multiplier": 0.23102435655306444,
+      "check_value": -0.014430892255892253,
+      "boards": 6000,
+      "check_value_se": 0.020257263399849245
+    },
+    "A7o": {
+      "counts": {
+        "win_qualified": 815409,
+        "win_unqualified": 328361,
+        "push": 67017,
+        "lose_qualified": 775687,
+        "lose_unqualified": 13526
+      },
+      "trials": 2000000,
+      "wins": 1143770,
+      "blind_multiplier": 0.2347320702588807,
+      "check_value": -0.0780577441077441,
+      "boards": 6000,
+      "check_value_se": 0.020372975992002454
+    },
+    "A6o": {
+      "counts": {
+        "win_qualified": 793679,
+        "win_unqualified": 325115,
+        "push": 72950,
+        "lose_qualified": 792808,
+        "lose_unqualified": 15448
+      },
+      "trials": 2000000,
+      "wins": 1118794,
+      "blind_multiplier": 0.24133754739478402,
+      "check_value": -0.12332365319865345,
+      "boards": 6000,
+      "check_value_se": 0.022254716115838135
+    },
+    "A5o": {
+      "counts": {
+        "win_qualified": 791485,
+        "win_unqualified": 323121,
+        "push": 78821,
+        "lose_qualified": 791105,
+        "lose_unqualified": 15468
+      },
+      "trials": 2000000,
+      "wins": 1114606,
+      "blind_multiplier": 0.2598362111813502,
+      "check_value": -0.10674890572390572,
+      "boards": 6000,
+      "check_value_se": 0.020742922951286557
+    },
+    "A4o": {
+      "counts": {
+        "win_qualified": 775660,
+        "win_unqualified": 319157,
+        "push": 79469,
+        "lose_qualified": 809682,
+        "lose_unqualified": 16032
+      },
+      "trials": 2000000,
+      "wins": 1094817,
+      "blind_multiplier": 0.25786455635964733,
+      "check_value": -0.1534591750841751,
+      "boards": 6000,
+      "check_value_se": 0.018910775533826002
+    },
+    "A3o": {
+      "counts": {
+        "win_qualified": 760073,
+        "win_unqualified": 317680,
+        "push": 79380,
+        "lose_qualified": 826815,
+        "lose_unqualified": 16052
+      },
+      "trials": 2000000,
+      "wins": 1077753,
+      "blind_multiplier": 0.25070633067131337,
+      "check_value": -0.1954389730639742,
+      "boards": 6000,
+      "check_value_se": 0.020371706062733187
+    },
+    "A2o": {
+      "counts": {
+        "win_qualified": 742398,
+        "win_unqualified": 316938,
+        "push": 79365,
+        "lose_qualified": 844934,
+        "lose_unqualified": 16365
+      },
+      "trials": 2000000,
+      "wins": 1059336,
+      "blind_multiplier": 0.25000283196266343,
+      "check_value": -0.18241111111111233,
+      "boards": 6000,
+      "check_value_se": 0.0858457210948876
+    },
+    "KQo": {
+      "counts": {
+        "win_qualified": 885056,
+        "win_unqualified": 323997,
+        "push": 41028,
+        "lose_qualified": 731197,
+        "lose_unqualified": 18722
+      },
+      "trials": 2000000,
+      "wins": 1209053,
+      "blind_multiplier": 0.27563473230702046,
+      "check_value": 0.0846095117845119,
+      "boards": 6000,
+      "check_value_se": 0.021851283427885185
+    },
+    "KJo": {
+      "counts": {
+        "win_qualified": 866241,
+        "win_unqualified": 322512,
+        "push": 44901,
+        "lose_qualified": 744959,
+        "lose_unqualified": 21387
+      },
+      "trials": 2000000,
+      "wins": 1188753,
+      "blind_multiplier": 0.2793208513459062,
+      "check_value": 0.1638453703703695,
+      "boards": 6000,
+      "check_value_se": 0.08598418758507753
+    },
+    "KTo": {
+      "counts": {
+        "win_qualified": 849293,
+        "win_unqualified": 321256,
+        "push": 49902,
+        "lose_qualified": 755858,
+        "lose_unqualified": 23691
+      },
+      "trials": 2000000,
+      "wins": 1170549,
+      "blind_multiplier": 0.29294501981548826,
+      "check_value": 0.010894023569023387,
+      "boards": 6000,
+      "check_value_se": 0.02180886551965405
+    },
+    "K9o": {
+      "counts": {
+        "win_qualified": 808662,
+        "win_unqualified": 319468,
+        "push": 56404,
+        "lose_qualified": 789940,
+        "lose_unqualified": 25526
+      },
+      "trials": 2000000,
+      "wins": 1128130,
+      "blind_multiplier": 0.2558397525107922,
+      "check_value": -0.008643097643097486,
+      "boards": 6000,
+      "check_value_se": 0.08643910587514064
+    },
+    "K8o": {
+      "counts": {
+        "win_qualified": 773699,
+        "win_unqualified": 315117,
+        "push": 63633,
+        "lose_qualified": 818881,
+        "lose_unqualified": 28670
+      },
+      "trials": 2000000,
+      "wins": 1088816,
+      "blind_multiplier": 0.23882777255293824,
+      "check_value": -0.16271540404040322,
+      "boards": 6000,
+      "check_value_se": 0.024068222940794252
+    },
+    "K7o": {
+      "counts": {
+        "win_qualified": 758255,
+        "win_unqualified": 311385,
+        "push": 71221,
+        "lose_qualified": 828579,
+        "lose_unqualified": 30560
+      },
+      "trials": 2000000,
+      "wins": 1069640,
+      "blind_multiplier": 0.251149452152126,
+      "check_value": -0.2519963804713807,
+      "boards": 6000,
+      "check_value_se": 0.01912167765386488
+    },
+    "K6o": {
+      "counts": {
+        "win_qualified": 737599,
+        "win_unqualified": 307194,
+        "push": 77226,
+        "lose_qualified": 845416,
+        "lose_unqualified": 32565
+      },
+      "trials": 2000000,
+      "wins": 1044793,
+      "blind_multiplier": 0.2565465120842119,
+      "check_value": -0.28131329966329993,
+      "boards": 6000,
+      "check_value_se": 0.022482125525148604
+    },
+    "K5o": {
+      "counts": {
+        "win_qualified": 721214,
+        "win_unqualified": 304291,
+        "push": 82399,
+        "lose_qualified": 858384,
+        "lose_unqualified": 33712
+      },
+      "trials": 2000000,
+      "wins": 1025505,
+      "blind_multiplier": 0.25529665871936263,
+      "check_value": -0.3355968013468012,
+      "boards": 6000,
+      "check_value_se": 0.020500414448757793
+    },
+    "K4o": {
+      "counts": {
+        "win_qualified": 703813,
+        "win_unqualified": 301133,
+        "push": 83893,
+        "lose_qualified": 876570,
+        "lose_unqualified": 34591
+      },
+      "trials": 2000000,
+      "wins": 1004946,
+      "blind_multiplier": 0.2520951374501714,
+      "check_value": -0.3601058080808098,
+      "boards": 6000,
+      "check_value_se": 0.01849338011881414
+    },
+    "K3o": {
+      "counts": {
+        "win_qualified": 686122,
+        "win_unqualified": 298971,
+        "push": 84358,
+        "lose_qualified": 896368,
+        "lose_unqualified": 34181
+      },
+      "trials": 2000000,
+      "wins": 985093,
+      "blind_multiplier": 0.2471599128204139,
+      "check_value": -0.3889729797979802,
+      "boards": 6000,
+      "check_value_se": 0.01934057913520876
+    },
+    "K2o": {
+      "counts": {
+        "win_qualified": 670181,
+        "win_unqualified": 298025,
+        "push": 83509,
+        "lose_qualified": 913468,
+        "lose_unqualified": 34817
+      },
+      "trials": 2000000,
+      "wins": 968206,
+      "blind_multiplier": 0.24485749933381945,
+      "check_value": -0.45358779461279625,
+      "boards": 6000,
+      "check_value_se": 0.02235960191522834
+    },
+    "QJo": {
+      "counts": {
+        "win_qualified": 829237,
+        "win_unqualified": 308999,
+        "push": 49522,
+        "lose_qualified": 775968,
+        "lose_unqualified": 36274
+      },
+      "trials": 2000000,
+      "wins": 1138236,
+      "blind_multiplier": 0.3224089731830657,
+      "check_value": 0.03379511784511771,
+      "boards": 6000,
+      "check_value_se": 0.08615763155630296
+    },
+    "QTo": {
+      "counts": {
+        "win_qualified": 811460,
+        "win_unqualified": 308420,
+        "push": 53658,
+        "lose_qualified": 788664,
+        "lose_unqualified": 37798
+      },
+      "trials": 2000000,
+      "wins": 1119880,
+      "blind_multiplier": 0.3386836089581027,
+      "check_value": -0.03698476430976443,
+      "boards": 6000,
+      "check_value_se": 0.026107528962941343
+    },
+    "Q9o": {
+      "counts": {
+        "win_qualified": 772491,
+        "win_unqualified": 305135,
+        "push": 59906,
+        "lose_qualified": 822297,
+        "lose_unqualified": 40171
+      },
+      "trials": 2000000,
+      "wins": 1077626,
+      "blind_multiplier": 0.29261404234864413,
+      "check_value": -0.16153518518518456,
+      "boards": 6000,
+      "check_value_se": 0.020673074189549952
+    },
+    "Q8o": {
+      "counts": {
+        "win_qualified": 736496,
+        "win_unqualified": 302399,
+        "push": 66688,
+        "lose_qualified": 851006,
+        "lose_unqualified": 43411
+      },
+      "trials": 2000000,
+      "wins": 1038895,
+      "blind_multiplier": 0.2815034243114078,
+      "check_value": -0.2628207912457914,
+      "boards": 6000,
+      "check_value_se": 0.02311711700006508
+    },
+    "Q7o": {
+      "counts": {
+        "win_qualified": 702459,
+        "win_unqualified": 296417,
+        "push": 74528,
+        "lose_qualified": 879846,
+        "lose_unqualified": 46750
+      },
+      "trials": 2000000,
+      "wins": 998876,
+      "blind_multiplier": 0.26703114300473735,
+      "check_value": -0.35081632996632917,
+      "boards": 6000,
+      "check_value_se": 0.023447539170341137
+    },
+    "Q6o": {
+      "counts": {
+        "win_qualified": 687030,
+        "win_unqualified": 292704,
+        "push": 81264,
+        "lose_qualified": 890723,
+        "lose_unqualified": 48279
+      },
+      "trials": 2000000,
+      "wins": 979734,
+      "blind_multiplier": 0.28164226208338183,
+      "check_value": -0.4222015993265994,
+      "boards": 6000,
+      "check_value_se": 0.020775526057123475
+    },
+    "Q5o": {
+      "counts": {
+        "win_qualified": 668329,
+        "win_unqualified": 289611,
+        "push": 86615,
+        "lose_qualified": 905403,
+        "lose_unqualified": 50042
+      },
+      "trials": 2000000,
+      "wins": 957940,
+      "blind_multiplier": 0.2817592959893104,
+      "check_value": -0.3420098484848486,
+      "boards": 6000,
+      "check_value_se": 0.0869532998816297
+    },
+    "Q4o": {
+      "counts": {
+        "win_qualified": 651726,
+        "win_unqualified": 286868,
+        "push": 88044,
+        "lose_qualified": 923072,
+        "lose_unqualified": 50290
+      },
+      "trials": 2000000,
+      "wins": 938594,
+      "blind_multiplier": 0.2801392295284223,
+      "check_value": -0.5024262626262643,
+      "boards": 6000,
+      "check_value_se": 0.019380032188655815
+    },
+    "Q3o": {
+      "counts": {
+        "win_qualified": 634614,
+        "win_unqualified": 284702,
+        "push": 88040,
+        "lose_qualified": 941751,
+        "lose_unqualified": 50893
+      },
+      "trials": 2000000,
+      "wins": 919316,
+      "blind_multiplier": 0.27246452797514675,
+      "check_value": -0.4147150673400665,
+      "boards": 6000,
+      "check_value_se": 0.08635630571837237
+    },
+    "Q2o": {
+      "counts": {
+        "win_qualified": 617387,
+        "win_unqualified": 284118,
+        "push": 87410,
+        "lose_qualified": 959956,
+        "lose_unqualified": 51129
+      },
+      "trials": 2000000,
+      "wins": 901505,
+      "blind_multiplier": 0.26917931680911367,
+      "check_value": -0.5871251683501696,
+      "boards": 6000,
+      "check_value_se": 0.020863078728838018
+    },
+    "JTo": {
+      "counts": {
+        "win_qualified": 779765,
+        "win_unqualified": 295284,
+        "push": 57016,
+        "lose_qualified": 817091,
+        "lose_unqualified": 50844
+      },
+      "trials": 2000000,
+      "wins": 1075049,
+      "blind_multiplier": 0.3887562334368015,
+      "check_value": -0.10081170033669973,
+      "boards": 6000,
+      "check_value_se": 0.021552621084943293
+    },
+    "J9o": {
+      "counts": {
+        "win_qualified": 739159,
+        "win_unqualified": 292833,
+        "push": 64330,
+        "lose_qualified": 850729,
+        "lose_unqualified": 52949
+      },
+      "trials": 2000000,
+      "wins": 1031992,
+      "blind_multiplier": 0.3418548787199901,
+      "check_value": -0.2423623737373753,
+      "boards": 6000,
+      "check_value_se": 0.02279014811131783
+    },
+    "J8o": {
+      "counts": {
+        "win_qualified": 702864,
+        "win_unqualified": 291485,
+        "push": 70938,
+        "lose_qualified": 878862,
+        "lose_unqualified": 55851
+      },
+      "trials": 2000000,
+      "wins": 994349,
+      "blind_multiplier": 0.324992532802869,
+      "check_value": -0.3494361952861953,
+      "boards": 6000,
+      "check_value_se": 0.020549777787233412
+    },
+    "J7o": {
+      "counts": {
+        "win_qualified": 669301,
+        "win_unqualified": 285121,
+        "push": 77830,
+        "lose_qualified": 908251,
+        "lose_unqualified": 59497
+      },
+      "trials": 2000000,
+      "wins": 954422,
+      "blind_multiplier": 0.3128642256779496,
+      "check_value": -0.4126310606060616,
+      "boards": 6000,
+      "check_value_se": 0.02347816881334299
+    },
+    "J6o": {
+      "counts": {
+        "win_qualified": 635491,
+        "win_unqualified": 278772,
+        "push": 85128,
+        "lose_qualified": 937249,
+        "lose_unqualified": 63360
+      },
+      "trials": 2000000,
+      "wins": 914263,
+      "blind_multiplier": 0.29586344410743953,
+      "check_value": -0.5327622895622883,
+      "boards": 6000,
+      "check_value_se": 0.023518492902628762
+    },
+    "J5o": {
+      "counts": {
+        "win_qualified": 623325,
+        "win_unqualified": 276270,
+        "push": 90629,
+        "lose_qualified": 945457,
+        "lose_unqualified": 64319
+      },
+      "trials": 2000000,
+      "wins": 899595,
+      "blind_multiplier": 0.31755567783280253,
+      "check_value": -0.575499831649829,
+      "boards": 6000,
+      "check_value_se": 0.01948783179494832
+    },
+    "J4o": {
+      "counts": {
+        "win_qualified": 604903,
+        "win_unqualified": 271875,
+        "push": 92573,
+        "lose_qualified": 965863,
+        "lose_unqualified": 64786
+      },
+      "trials": 2000000,
+      "wins": 876778,
+      "blind_multiplier": 0.30539429593352024,
+      "check_value": -0.5886889730639691,
+      "boards": 6000,
+      "check_value_se": 0.021505406966169868
+    },
+    "J3o": {
+      "counts": {
+        "win_qualified": 587382,
+        "win_unqualified": 271506,
+        "push": 92358,
+        "lose_qualified": 983681,
+        "lose_unqualified": 65073
+      },
+      "trials": 2000000,
+      "wins": 858888,
+      "blind_multiplier": 0.2978094932051676,
+      "check_value": -0.6077480639730652,
+      "boards": 6000,
+      "check_value_se": 0.021404074661552103
+    },
+    "J2o": {
+      "counts": {
+        "win_qualified": 569823,
+        "win_unqualified": 271103,
+        "push": 92172,
+        "lose_qualified": 1001264,
+        "lose_unqualified": 65638
+      },
+      "trials": 2000000,
+      "wins": 840926,
+      "blind_multiplier": 0.29565324416179306,
+      "check_value": -0.6029661616161597,
+      "boards": 6000,
+      "check_value_se": 0.08597570914486964
+    },
+    "T9o": {
+      "counts": {
+        "win_qualified": 712975,
+        "win_unqualified": 283970,
+        "push": 68482,
+        "lose_qualified": 871384,
+        "lose_unqualified": 63189
+      },
+      "trials": 2000000,
+      "wins": 996945,
+      "blind_multiplier": 0.3891643972335485,
+      "check_value": -0.2554970538720546,
+      "boards": 6000,
+      "check_value_se": 0.022071166027377784
+    },
+    "T8o": {
+      "counts": {
+        "win_qualified": 675787,
+        "win_unqualified": 279907,
+        "push": 76213,
+        "lose_qualified": 901385,
+        "lose_unqualified": 66708
+      },
+      "trials": 2000000,
+      "wins": 955694,
+      "blind_multiplier": 0.3757437003894552,
+      "check_value": -0.3676859427609431,
+      "boards": 6000,
+      "check_value_se": 0.02449805901163519
+    },
+    "T7o": {
+      "counts": {
+        "win_qualified": 641039,
+        "win_unqualified": 275423,
+        "push": 83103,
+        "lose_qualified": 929635,
+        "lose_unqualified": 70800
+      },
+      "trials": 2000000,
+      "wins": 916462,
+      "blind_multiplier": 0.3714562087680668,
+      "check_value": -0.424002777777777,
+      "boards": 6000,
+      "check_value_se": 0.08621663957879883
+    },
+    "T6o": {
+      "counts": {
+        "win_qualified": 607238,
+        "win_unqualified": 269502,
+        "push": 89796,
+        "lose_qualified": 958881,
+        "lose_unqualified": 74583
+      },
+      "trials": 2000000,
+      "wins": 876740,
+      "blind_multiplier": 0.34798686041471816,
+      "check_value": -0.5914547979797974,
+      "boards": 6000,
+      "check_value_se": 0.025007612908481122
+    },
+    "T5o": {
+      "counts": {
+        "win_qualified": 575081,
+        "win_unqualified": 261703,
+        "push": 96185,
+        "lose_qualified": 987796,
+        "lose_unqualified": 79235
+      },
+      "trials": 2000000,
+      "wins": 836784,
+      "blind_multiplier": 0.33287084839098263,
+      "check_value": -0.6421125420875412,
+      "boards": 6000,
+      "check_value_se": 0.023415190368568654
+    },
+    "T4o": {
+      "counts": {
+        "win_qualified": 560477,
+        "win_unqualified": 259930,
+        "push": 97794,
+        "lose_qualified": 1002919,
+        "lose_unqualified": 78880
+      },
+      "trials": 2000000,
+      "wins": 820407,
+      "blind_multiplier": 0.3295979922160586,
+      "check_value": -0.6879674242424241,
+      "boards": 6000,
+      "check_value_se": 0.021179321464024983
+    },
+    "T3o": {
+      "counts": {
+        "win_qualified": 543968,
+        "win_unqualified": 259389,
+        "push": 97279,
+        "lose_qualified": 1020137,
+        "lose_unqualified": 79227
+      },
+      "trials": 2000000,
+      "wins": 803357,
+      "blind_multiplier": 0.3367736884100095,
+      "check_value": -0.7160510942760934,
+      "boards": 6000,
+      "check_value_se": 0.021453760303027883
+    },
+    "T2o": {
+      "counts": {
+        "win_qualified": 526453,
+        "win_unqualified": 258182,
+        "push": 97079,
+        "lose_qualified": 1039392,
+        "lose_unqualified": 78894
+      },
+      "trials": 2000000,
+      "wins": 784635,
+      "blind_multiplier": 0.3189138898978506,
+      "check_value": -0.6681941077441077,
+      "boards": 6000,
+      "check_value_se": 0.08632245634064126
+    },
+    "98o": {
+      "counts": {
+        "win_qualified": 647389,
+        "win_unqualified": 272613,
+        "push": 80926,
+        "lose_qualified": 926045,
+        "lose_unqualified": 73027
+      },
+      "trials": 2000000,
+      "wins": 920002,
+      "blind_multiplier": 0.39116273660274653,
+      "check_value": -0.41134023569023503,
+      "boards": 6000,
+      "check_value_se": 0.023299052985028774
+    },
+    "97o": {
+      "counts": {
+        "win_qualified": 612263,
+        "win_unqualified": 268955,
+        "push": 89073,
+        "lose_qualified": 953827,
+        "lose_unqualified": 75882
+      },
+      "trials": 2000000,
+      "wins": 881218,
+      "blind_multiplier": 0.38043083550267925,
+      "check_value": -0.5152561447811428,
+      "boards": 6000,
+      "check_value_se": 0.0244812521081626
+    },
+    "96o": {
+      "counts": {
+        "win_qualified": 578470,
+        "win_unqualified": 262683,
+        "push": 95400,
+        "lose_qualified": 983210,
+        "lose_unqualified": 80237
+      },
+      "trials": 2000000,
+      "wins": 841153,
+      "blind_multiplier": 0.3647570655992429,
+      "check_value": -0.6041567340067325,
+      "boards": 6000,
+      "check_value_se": 0.02545214904746395
+    },
+    "95o": {
+      "counts": {
+        "win_qualified": 544629,
+        "win_unqualified": 256828,
+        "push": 101386,
+        "lose_qualified": 1012122,
+        "lose_unqualified": 85035
+      },
+      "trials": 2000000,
+      "wins": 801457,
+      "blind_multiplier": 0.350272690861768,
+      "check_value": -0.6695655723905711,
+      "boards": 6000,
+      "check_value_se": 0.02352345170531704
+    },
+    "94o": {
+      "counts": {
+        "win_qualified": 511637,
+        "win_unqualified": 250471,
+        "push": 103171,
+        "lose_qualified": 1045906,
+        "lose_unqualified": 88815
+      },
+      "trials": 2000000,
+      "wins": 762108,
+      "blind_multiplier": 0.32200619859652435,
+      "check_value": -0.7093455387205366,
+      "boards": 6000,
+      "check_value_se": 0.024759236731514013
+    },
+    "93o": {
+      "counts": {
+        "win_qualified": 497809,
+        "win_unqualified": 249709,
+        "push": 104094,
+        "lose_qualified": 1060468,
+        "lose_unqualified": 87920
+      },
+      "trials": 2000000,
+      "wins": 747518,
+      "blind_multiplier": 0.32413065638553185,
+      "check_value": -0.8342743265993293,
+      "boards": 6000,
+      "check_value_se": 0.02064206954613444
+    },
+    "92o": {
+      "counts": {
+        "win_qualified": 479794,
+        "win_unqualified": 248683,
+        "push": 103181,
+        "lose_qualified": 1080323,
+        "lose_unqualified": 88019
+      },
+      "trials": 2000000,
+      "wins": 728477,
+      "blind_multiplier": 0.31832370822963524,
+      "check_value": -0.8299111952861963,
+      "boards": 6000,
+      "check_value_se": 0.022548693442995878
+    },
+    "87o": {
+      "counts": {
+        "win_qualified": 589217,
+        "win_unqualified": 262901,
+        "push": 94409,
+        "lose_qualified": 971744,
+        "lose_unqualified": 81729
+      },
+      "trials": 2000000,
+      "wins": 852118,
+      "blind_multiplier": 0.41676446219889735,
+      "check_value": -0.46671607744107685,
+      "boards": 6000,
+      "check_value_se": 0.02341205939870945
+    },
+    "86o": {
+      "counts": {
+        "win_qualified": 556868,
+        "win_unqualified": 257506,
+        "push": 101301,
+        "lose_qualified": 999258,
+        "lose_unqualified": 85067
+      },
+      "trials": 2000000,
+      "wins": 814374,
+      "blind_multiplier": 0.4056090936105524,
+      "check_value": -0.5322973905723898,
+      "boards": 6000,
+      "check_value_se": 0.027459632092952737
+    },
+    "85o": {
+      "counts": {
+        "win_qualified": 523500,
+        "win_unqualified": 251505,
+        "push": 107350,
+        "lose_qualified": 1028246,
+        "lose_unqualified": 89399
+      },
+      "trials": 2000000,
+      "wins": 775005,
+      "blind_multiplier": 0.39270262772498243,
+      "check_value": -0.6675862794612792,
+      "boards": 6000,
+      "check_value_se": 0.02066694944490214
+    },
+    "84o": {
+      "counts": {
+        "win_qualified": 490336,
+        "win_unqualified": 245202,
+        "push": 109924,
+        "lose_qualified": 1061645,
+        "lose_unqualified": 92893
+      },
+      "trials": 2000000,
+      "wins": 735538,
+      "blind_multiplier": 0.3652897606921736,
+      "check_value": -0.7553409932659935,
+      "boards": 6000,
+      "check_value_se": 0.019761458379622284
+    },
+    "83o": {
+      "counts": {
+        "win_qualified": 456168,
+        "win_unqualified": 239218,
+        "push": 109753,
+        "lose_qualified": 1096929,
+        "lose_unqualified": 97932
+      },
+      "trials": 2000000,
+      "wins": 695386,
+      "blind_multiplier": 0.33863782129637354,
+      "check_value": -0.8523919191919184,
+      "boards": 6000,
+      "check_value_se": 0.022861507929691962
+    },
+    "82o": {
+      "counts": {
+        "win_qualified": 442607,
+        "win_unqualified": 239802,
+        "push": 109495,
+        "lose_qualified": 1112069,
+        "lose_unqualified": 96027
+      },
+      "trials": 2000000,
+      "wins": 682409,
+      "blind_multiplier": 0.3361122142292965,
+      "check_value": -0.8975723905723904,
+      "boards": 6000,
+      "check_value_se": 0.019217387661728525
+    },
+    "76o": {
+      "counts": {
+        "win_qualified": 542942,
+        "win_unqualified": 251525,
+        "push": 106554,
+        "lose_qualified": 1009719,
+        "lose_unqualified": 89260
+      },
+      "trials": 2000000,
+      "wins": 794467,
+      "blind_multiplier": 0.4455358120601611,
+      "check_value": -0.5331355218855224,
+      "boards": 6000,
+      "check_value_se": 0.023035538561186165
+    },
+    "75o": {
+      "counts": {
+        "win_qualified": 507690,
+        "win_unqualified": 245903,
+        "push": 113489,
+        "lose_qualified": 1040311,
+        "lose_unqualified": 92607
+      },
+      "trials": 2000000,
+      "wins": 753593,
+      "blind_multiplier": 0.43771040866887034,
+      "check_value": -0.6281000000000011,
+      "boards": 6000,
+      "check_value_se": 0.020710436104261418
+    },
+    "74o": {
+      "counts": {
+        "win_qualified": 473661,
+        "win_unqualified": 239118,
+        "push": 116406,
+        "lose_qualified": 1073199,
+        "lose_unqualified": 97616
+      },
+      "trials": 2000000,
+      "wins": 712779,
+      "blind_multiplier": 0.4110860449031186,
+      "check_value": -0.7362280303030325,
+      "boards": 6000,
+      "check_value_se": 0.019841516736181692
+    },
+    "73o": {
+      "counts": {
+        "win_qualified": 439883,
+        "win_unqualified": 235151,
+        "push": 115500,
+        "lose_qualified": 1108886,
+        "lose_unqualified": 100580
+      },
+      "trials": 2000000,
+      "wins": 675034,
+      "blind_multiplier": 0.3796808753336869,
+      "check_value": -0.8643170033670028,
+      "boards": 6000,
+      "check_value_se": 0.020005704734639022
+    },
+    "72o": {
+      "counts": {
+        "win_qualified": 405284,
+        "win_unqualified": 229054,
+        "push": 114934,
+        "lose_qualified": 1144795,
+        "lose_unqualified": 105933
+      },
+      "trials": 2000000,
+      "wins": 634338,
+      "blind_multiplier": 0.35152395095359257,
+      "check_value": -0.9599007575757578,
+      "boards": 6000,
+      "check_value_se": 0.02075579426226735
+    },
+    "65o": {
+      "counts": {
+        "win_qualified": 495955,
+        "win_unqualified": 243229,
+        "push": 117711,
+        "lose_qualified": 1048062,
+        "lose_unqualified": 95043
+      },
+      "trials": 2000000,
+      "wins": 739184,
+      "blind_multiplier": 0.47440961925582803,
+      "check_value": -0.615939393939395,
+      "boards": 6000,
+      "check_value_se": 0.022573976308077198
+    },
+    "64o": {
+      "counts": {
+        "win_qualified": 463542,
+        "win_unqualified": 236650,
+        "push": 120699,
+        "lose_qualified": 1080868,
+        "lose_unqualified": 98241
+      },
+      "trials": 2000000,
+      "wins": 700192,
+      "blind_multiplier": 0.4543753713267218,
+      "check_value": -0.7324914141414136,
+      "boards": 6000,
+      "check_value_se": 0.020684232907751253
+    },
+    "63o": {
+      "counts": {
+        "win_qualified": 430809,
+        "win_unqualified": 231217,
+        "push": 120301,
+        "lose_qualified": 1115167,
+        "lose_unqualified": 102506
+      },
+      "trials": 2000000,
+      "wins": 662026,
+      "blind_multiplier": 0.4263752481020383,
+      "check_value": -0.8569440235690252,
+      "boards": 6000,
+      "check_value_se": 0.021312052566152616
+    },
+    "62o": {
+      "counts": {
+        "win_qualified": 394586,
+        "win_unqualified": 226310,
+        "push": 119786,
+        "lose_qualified": 1152037,
+        "lose_unqualified": 107281
+      },
+      "trials": 2000000,
+      "wins": 620896,
+      "blind_multiplier": 0.39460634309127457,
+      "check_value": -0.9086438552188539,
+      "boards": 6000,
+      "check_value_se": 0.019151990395670653
+    },
+    "54o": {
+      "counts": {
+        "win_qualified": 463517,
+        "win_unqualified": 238305,
+        "push": 123581,
+        "lose_qualified": 1078519,
+        "lose_unqualified": 96078
+      },
+      "trials": 2000000,
+      "wins": 701822,
+      "blind_multiplier": 0.4931649335586516,
+      "check_value": -0.6632638888888894,
+      "boards": 6000,
+      "check_value_se": 0.023186945949670697
+    },
+    "53o": {
+      "counts": {
+        "win_qualified": 430664,
+        "win_unqualified": 232732,
+        "push": 123697,
+        "lose_qualified": 1113030,
+        "lose_unqualified": 99877
+      },
+      "trials": 2000000,
+      "wins": 663396,
+      "blind_multiplier": 0.47306209262642523,
+      "check_value": -0.8104751683501659,
+      "boards": 6000,
+      "check_value_se": 0.021728660657932598
+    },
+    "52o": {
+      "counts": {
+        "win_qualified": 395357,
+        "win_unqualified": 228148,
+        "push": 123252,
+        "lose_qualified": 1148527,
+        "lose_unqualified": 104716
+      },
+      "trials": 2000000,
+      "wins": 623505,
+      "blind_multiplier": 0.4444543347687669,
+      "check_value": -0.8898101851851837,
+      "boards": 6000,
+      "check_value_se": 0.02043210438181819
+    },
+    "43o": {
+      "counts": {
+        "win_qualified": 410689,
+        "win_unqualified": 229989,
+        "push": 123290,
+        "lose_qualified": 1134306,
+        "lose_unqualified": 101726
+      },
+      "trials": 2000000,
+      "wins": 640678,
+      "blind_multiplier": 0.4733430834210009,
+      "check_value": -0.8412270202020177,
+      "boards": 6000,
+      "check_value_se": 0.02357295026277436
+    },
+    "42o": {
+      "counts": {
+        "win_qualified": 378369,
+        "win_unqualified": 224940,
+        "push": 122773,
+        "lose_qualified": 1167945,
+        "lose_unqualified": 105973
+      },
+      "trials": 2000000,
+      "wins": 603309,
+      "blind_multiplier": 0.43992216260655814,
+      "check_value": -0.878509511784511,
+      "boards": 6000,
+      "check_value_se": 0.021733469507059452
+    },
+    "32o": {
+      "counts": {
+        "win_qualified": 360417,
+        "win_unqualified": 224090,
+        "push": 122331,
+        "lose_qualified": 1187610,
+        "lose_unqualified": 105552
+      },
+      "trials": 2000000,
+      "wins": 584507,
+      "blind_multiplier": 0.43861835700855595,
+      "check_value": -0.9287398148148139,
+      "boards": 6000,
+      "check_value_se": 0.019842301683811257
+    }
+  }
+}
