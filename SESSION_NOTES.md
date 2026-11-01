@@ -70,13 +70,39 @@ the code. Read it there; it is not duplicated here.
    `Js Ts` on `As Ks Qs` → BET; `9h 9d` on `Ks Qh Jd` → BET; `7c 2d` on the same
    board → CHECK.
 
-## Open — settle before writing the generator
+## Pre-flop generator and bias probe — settled 2026-11-01
 
-- **Does the table also store the pre-flop Blind expectation?** Locked decision 3
-  says pre-flop needs a third form of Blind handling; whether that lives in the
-  table or is computed at lookup time is a judgment call, not a detail.
-- **How to measure the residual flop-bias (F term)** — see below; this follow-up
-  must not get dropped.
+- **The table stores the Blind**, as a win-conditional scalar
+  `B_eff = blind_sum / wins` computed in the same 2M loop, exactly the
+  construction `flop.py` uses. It *cannot* be computed at runtime: at decision
+  time there is no board, so there is no final hand class to look up. SE ≈ 0.002
+  at 2M samples (dominated by the 500:1 royal term). Carry this caveat into
+  `preflop.py`'s docstring: `B_eff` is win-conditional, so it is exact for the EV
+  the decision uses but only approximate inside `breakeven_or_none`, which varies
+  `p_win` while holding it fixed. Rejected: also storing the full conditional
+  final-hand distribution — buys nothing for the decision.
+- **Baseline sampling is two-tier and adaptive.** 6,000 boards for all 169
+  classes (SE 0.02, 2.13h), then a denser pass (~60,000 boards, SE 0.006,
+  ~7.6 min/class) for any class whose |margin| < 3×SE. 6,000 alone cannot resolve
+  a verdict whose margin is ~0.01 — the noise is larger than the signal.
+- **The F term is measured, not asserted**, by `tools/measure_flop_bias.py`,
+  separate from the generator (different output, different lifetime):
+
+      F̄(class) = E_flop[ max(0, flop.ev_advantage) ]      flops ~ uniform C(50,3)
+
+  each flop priced exactly by `flop.decide` (8.3s, so no double-sampling error).
+  Order: a 30-flop warm-up probe on 3 classes (~12 min) to reproduce this file's
+  F numbers before spending hours, then the ~10 classes with the smallest
+  |margin| at 400–600 flops each (~4.6h+), plus the three reference hands as
+  controls. SE ≈ 0.011 at n=200, which is why the thin classes get more.
+- **Both corrections are one-directional** (`margin_corrected = margin − F̄`, and
+  F̄ ≥ 0), so only BET→CHECK flips are possible.
+
+## Still open
+
+- Where the 169-class canonicalizer lives — both the generator and `preflop.py`
+  need it, and `preflop.py` does not exist yet.
+- River validation against published charts (next steps 3 and 4).
 
 ## Pre-flop baseline (spec 3d) — decided, not yet built
 
@@ -213,15 +239,16 @@ decide(hole, board, table=PAYOUT_TABLE) -> FlopDecision    # .action BET|CHECK
    starting-hand classes, Monte Carlo N=2,000,000 full runouts, recording the
    five-bucket outcome rates; write `tools/preflop_table.json`, checked into the
    repo. Seed it for reproducibility. This is the one place sampling is genuinely
-   unavoidable — see the corrected count above. Plus the board-averaged
-   `check_value` loop (6,000 boards/class) and whatever "Open" above decides
-   about the Blind.
+   unavoidable — see the corrected count above. It also runs the board-averaged
+   `check_value` loop (6,000 boards/class) and stores `B_eff`; see "Pre-flop
+   generator and bias probe" above for the settled shape of all three.
 2. `decision/preflop.py` (spec 3d): canonicalize two hole cards into one of the
    169 classes, look up the stored rates, decide bet 4x / check.
 3. Validate `river.py` output against published UTH river strategy charts for a
    few known hands — still outstanding from the previous session and not yet
    done; the flop is now also exact enough to cross-check the same way.
-4. Measure the residual F term (see "Residual, and how to bound it").
+4. `tools/measure_flop_bias.py`: warm-up probe, then the boundary classes —
+   see "Pre-flop generator and bias probe" above.
 
 Ask before: anything touching `perception/`, `action/` or `main.py`; any sample
 size change; any change to the payout table or the 5-bucket model.
