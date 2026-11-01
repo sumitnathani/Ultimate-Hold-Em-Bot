@@ -23,18 +23,26 @@ a later phase and must not be touched without asking first.
   | `decision/ev.py` | 3e | `5aaf4ea`, `deb0847` | 25 |
   | `decision/river.py` | 3b | `355b7d5`, `deb0847` | 20 |
   | `decision/flop.py` | 3c | `8091353`, `aa95a91` | 18 |
-  | `decision/preflop.py` | 3d | `9b77c21` | 15 |
+  | `decision/preflop.py` | 3d | `9b77c21` | 15 (canonicaliser only) |
 
-- Full suite: **89 tests, ~45s, green.**
+- Full suite: **109 tests, ~50s, green.**
 - **Both built streets are exact** (exhaustive enumeration), so both are ground
   truth for validating the pre-flop table later.
+- **The 169-class table is built and committed** (`tools/preflop_table.json`,
+  `ad82766`, generated 2026-11-01): 2,000,000 full runouts + 6,000 boards per
+  class, seed `20261101`. Every row holds the five-bucket rates, `B_eff`, and
+  `check_value` with its SE. Spot-checked at full size against two recomputed
+  rows — one from each run — and the values were identical.
+- `tools/generate_preflop_table.py` is **built, tested and committed**
+  (`24ced31`, parallelized in `c65eff3`): one class per worker, `--jobs`
+  (default one per CPU), **14x measured** on the 24-core dev machine. Per-class
+  seeds make the parallel table equal a serial one row for row; the tests
+  assert it. Full serial-equivalent cost is ~4h; the remaining 64 classes took
+  6.6 min.
 - `preflop.py` is **half built**: the 169-class canonicaliser only. `decide()`
-  lands once the table it reads exists.
-- `tools/generate_preflop_table.py` is **built, tested and committed** (`24ced31`).
-  The full 169-class run is **in flight** (~4h: 1.6h rates + 2.5h baselines,
-  measured this session); it checkpoints per class, so an interrupt is survivable.
-- **Next concrete step:** `decision/preflop.py::decide()` once the table lands,
-  then the tier-2 dense baseline pass, then the F-term probe.
+  is next — lazy table load, lookup, 4x-bet comparison.
+- **Next concrete step:** `decision/preflop.py::decide()`, then the tier-2
+  dense baseline pass, then the F-term probe.
 
 ## Where the reasoning lives
 
@@ -92,6 +100,12 @@ the code. Read it there; it is not duplicated here.
   SE 0.006, ~9 min/class) for any class whose |margin| < 3×SE. 6,000 alone
   cannot resolve a verdict whose margin is ~0.01 — the noise is larger than the
   signal.
+- **Measured SEs are class-dependent, so tier 2 must use each row's stored
+  `check_value_se`, not a flat 0.02.** Median 0.024, but 45 classes exceed
+  0.03 and the max is 0.22 (suited broadways: the royal/straight-flush tail
+  enters through the river's optimal decision). At 3×SE the widest class has a
+  ±0.67 band, so "which classes go to tier 2" needs a look before the dense
+  pass is launched — the band, not a hand-picked list, decides.
 - **The F term is measured, not asserted**, by `tools/measure_flop_bias.py`,
   separate from the generator (different output, different lifetime):
 
@@ -107,9 +121,9 @@ the code. Read it there; it is not duplicated here.
 
 ## Still open
 
-- River validation against published charts (next steps 3 and 4).
+- River validation against published charts (next step 4).
 
-## Pre-flop baseline (spec 3d) — decided, not yet built
+## Pre-flop baseline (spec 3d) — decided and measured
 
 The pre-flop decision is bet 4x or check, so its baseline is the value of
 checking — the same *shape* of question the flop answered, but not the same
@@ -231,32 +245,38 @@ decide(hole, board, table=PAYOUT_TABLE) -> FlopDecision    # .action BET|CHECK
 
 ## Runtime notes
 
-- The full suite takes ~40s, almost entirely `tests/test_flop.py`: every
+- Full suite: **109 tests, ~50s**, almost entirely `tests/test_flop.py`: every
   `decide()` costs ~8.3s, and `test_the_check_baseline_and_the_blind_come_back_
   out_of_the_river` costs another ~8s re-deriving the same numbers through
   `river.decide`. All of it is computed once in module-scoped fixtures — **do
-  not convert them to per-test calls**, or the suite goes from 40s to minutes.
-- `river.decide` is milliseconds; `flop.decide` is ~8.3s; pre-flop will be a
+  not convert them to per-test calls**, or the suite goes from 50s to minutes.
+- `river.decide` is milliseconds; `flop.decide` is ~8.3s; pre-flop is a
   dictionary lookup (zero computation at runtime).
+- The table generator is parallel by default (`--jobs`, one worker per CPU).
+  Measured on this machine: 81 s/class serial, ~140 s/class under 24-way load,
+  **14x effective**; the remaining 64 classes took 6.6 min. A single-class run
+  (`--classes X`) stays in-process and is not worth parallelizing.
+- Tests call the generator through a `run()` helper that appends `--jobs 1`;
+  the parallel path is covered by one subprocess test that compares a
+  three-class parallel table with the serial one, row for row.
 
 ## Next session steps
 
-1. `tools/generate_preflop_table.py` (spec 3d): for each of the 169
-   starting-hand classes, Monte Carlo N=2,000,000 full runouts, recording the
-   five-bucket outcome rates; write `tools/preflop_table.json`, checked into the
-   repo. Seed it for reproducibility. This is the one place sampling is genuinely
-   unavoidable — see the corrected count above. It also runs the board-averaged
-   `check_value` loop (6,000 boards/class) and stores `B_eff`; see "Pre-flop
-   generator and bias probe" above for the settled shape of all three.
-2. `decision/preflop.py`: the canonicaliser is done and committed; what remains
-   is `decide()` — canonicalise two hole cards into one of the 169 classes, look
-   up the stored rates, decide bet 4x / check. Needs a **lazy** table load, so
-   that importing `starting_hand_class` from here in the generator does not
-   require the JSON to exist yet.
-3. Validate `river.py` output against published UTH river strategy charts for a
+1. ~~`tools/generate_preflop_table.py` + the full table~~ **Done** — committed
+   in `24ced31`/`c65eff3`/`ad82766`; see Status above.
+2. `decision/preflop.py::decide()` — **current step**. Canonicalise two hole
+   cards into one of the 169 classes, look up the stored rates, decide bet 4x /
+   check. Needs a **lazy** table load, so that importing `starting_hand_class`
+   from here in the generator does not require the JSON to exist yet. The
+   pre-flop baseline is `check_value`, not −2 (locked decision 1); `B_eff` is
+   the stored win-conditional Blind scalar.
+3. Tier-2 dense baseline pass over the boundary classes — the measured SEs vary
+   by class (see "Pre-flop generator and bias probe"), so pick the set from the
+   stored `check_value_se` and confirm the band with the user before running.
+4. Validate `river.py` output against published UTH river strategy charts for a
    few known hands — still outstanding from the previous session and not yet
    done; the flop is now also exact enough to cross-check the same way.
-4. `tools/measure_flop_bias.py`: warm-up probe, then the boundary classes —
+5. `tools/measure_flop_bias.py`: warm-up probe, then the boundary classes —
    see "Pre-flop generator and bias probe" above.
 
 Ask before: anything touching `perception/`, `action/` or `main.py`; any sample
