@@ -8,8 +8,8 @@ HOW BIG THE ENUMERATION IS, AND WHY
 -----------------------------------
 The unknowns split into two independent draws, not one:
 
-    dealer's hole cards   C(47, 2) = 1,081   from the 47 cards left
-    turn + river          C(45, 2) =   990   from the 45 left after that
+    turn + river          C(47, 2) = 1,081   from the 47 cards left
+    dealer's hole cards   C(45, 2) =   990   from the 45 left after that
     ---------------------------------------------------------------
     total                1,081 x 990 = 1,070,190
 
@@ -34,41 +34,60 @@ and all 6 are distinct, equally-likely situations.
 
 That version runs in ~2.7s, which is exactly what makes it a trap: it looks
 like the flop enumeration is cheap and the sampling in spec 3c is unnecessary.
-It is not. It was written during this session, produced a 55% push rate on a
-hand whose true push rate is 14%, and was caught by cross-checking against
+It is not. It was written during an earlier session, produced a 55% push rate
+on a hand whose true push rate is 14%, and was caught by cross-checking against
 independent Monte Carlo -- see ``test_the_enumeration_agrees_with_independent_
-monte_carlo``, which exists to keep it caught. The fix is to draw the dealer
-hand and the runout as the two separate draws they actually are, which is what
-:func:`enumerate_runout_outcomes` does.
+monte_carlo``, which exists to keep it caught. The fix is to draw the runout and
+the dealer hand as the two separate draws they actually are, which is what
+:func:`enumerate_flop_outcomes` does.
 
 Ordering the loops runout-first is a genuine ~2x optimisation, not a
 correctness trick: the player's score depends only on the five board cards, so
 hoisting it out of the inner loop computes it 1,081 times instead of 1,070,190.
 
-THE DECISION IT RETURNS
------------------------
-Bet 2x, or check -- there is no fold on the flop (spec 3c). The verdict is still
-computed by comparing the EV of betting against :func:`decision.ev.ev_of_fold`,
-the same 2-unit "give the hand up" baseline every street uses (spec 10, locked
-decision 1). Note what that baseline is and is not: folding is not an action
-available here, so ``ev_fold`` stands in for "do not bet now". Checking keeps the
-Ante and Blind alive into the turn and river, so the true EV of checking is
-strictly *above* -2 (folding is always available later, which makes -2 its
-floor). Using -2 therefore makes betting look better than it is and biases this
-screen toward betting 2x. That is a locked modelling simplification, flagged in
-the session notes as an open question rather than silently baked in.
+THE VERDICT IS BET 2x OR CHECK, AND CHECKING IS THE BASELINE
+------------------------------------------------------------
+There is no fold on the flop (spec 3c); the two actions are bet 2x and check.
+So the hand is not "raise or give up", it is "raise now or keep playing", and
+the bar betting has to clear is the value of *checking* -- not the value of
+folding.
 
-THE BLIND IS NOT YET PRICED HERE
---------------------------------
-``blind_multiplier`` is 0.0. On the river the player's final hand class is fully
-known, so the Blind payout can be read off the paytable exactly (see
-:func:`decision.ev.blind_multiplier_for_score`). On the flop it is not: the
-player's final five-card hand is one of the very things being enumerated, and
-the Blind pays only for a Straight or better, so pricing it needs an expectation
-over hand classes rather than a lookup. That estimation was explicitly deferred
-by design (spec 10, locked decision 3). Zero is the correct *placeholder* rather
-than a neutral guess: it can only understate the value of betting, so the error
-is one-directional and this screen errs toward checking, not betting.
+Checking the flop buys exactly one thing: the turn and river arrive, and the
+hand is then played as well as it can be. That is the river's optimal decision,
+which :func:`decision.river.optimal_ev` already defines exactly for any known
+board. So the value of checking is the average of that quantity over every
+runout, and this module computes it directly, in the same pass that counts the
+outcomes: 1,081 runouts, each one grading its own 990 dealer hands and pricing
+its own river. Averaging per runout is the same as averaging over all 1,070,190
+pairs, because every runout owns exactly 990 of them.
+
+The consequence is that ``ev_check`` is never below -2 and is usually well
+above it: folding is still available on the river, which makes -2 the *floor*
+of checking's value rather than its value. An earlier revision of this module
+compared ``ev_bet`` against the flat ``ev_of_fold()`` baseline instead, which
+made betting look better than it is by exactly the gap between the two -- a
+one-directional bias toward betting 2x, and the reason this was fixed rather
+than carried in the notes.
+
+THE BLIND IS PRICED HERE, AS AN EXPECTED MULTIPLIER
+---------------------------------------------------
+On the river the player's final hand class is known, so the Blind payout is a
+lookup (:func:`decision.ev.blind_multiplier_for_score`). On the flop the final
+hand is one of the things being enumerated, so there is no single multiplier to
+look up -- but there is no need to give up and pass 0.0 either, because the
+enumeration already knows the player's final hand for every outcome it visits.
+
+What is needed is the *total* Blind profit across all 1,070,190 outcomes:
+:attr:`FlopSweep.blind_sum` accumulates it, weighting each runout's win count by
+that runout's Blind payout. Dividing by the total number of wins gives an
+effective multiplier that reproduces that total exactly, since
+
+    sum(payoff with the Blind priced) = sum(payoff without it) + wins x effective
+
+and wins x effective = blind_sum by construction. That makes the effective
+multiplier an exact device rather than an approximation: it is a weighted
+average, weighted by how often each final hand actually wins, and it is derived
+from the same single pass, so it cannot drift from the outcomes beside it.
 """
 
 from __future__ import annotations
@@ -84,21 +103,24 @@ from decision.ev import (
     PAYOUT_TABLE,
     Outcomes,
     PayoutTable,
+    blind_multiplier_for_score,
     breakeven_or_none,
     dealer_qualifies,
     ev_of_bet,
-    ev_of_fold,
 )
+from decision.river import optimal_ev
 
 __all__ = [
     "FLOP_PLAY_MULTIPLIER",
     "BOARD_SIZE",
     "DEALER_HAND_SIZE",
     "TURN_AND_RIVER",
+    "RUNOUT_COUNT",
     "ENUMERATION_SIZE",
     "FlopAction",
+    "FlopSweep",
     "FlopDecision",
-    "enumerate_runout_outcomes",
+    "enumerate_flop_outcomes",
     "decide",
 ]
 
@@ -107,6 +129,9 @@ FLOP_PLAY_MULTIPLIER = 2.0
 BOARD_SIZE = 3
 DEALER_HAND_SIZE = 2
 TURN_AND_RIVER = 2
+#: C(47, 2): how many turn+river pairs there are once hole and flop are known.
+#: Also the divisor that turns the per-runout sums into expectations.
+RUNOUT_COUNT = 1_081
 #: C(47,2) * C(45,2). Named so tests can assert the enumeration is complete
 #: without re-deriving the arithmetic.
 ENUMERATION_SIZE = 1_070_190
@@ -117,6 +142,52 @@ class FlopAction(Enum):
 
     BET = "bet"  # raise 2x
     CHECK = "check"
+
+
+@dataclass(frozen=True)
+class FlopSweep:
+    """Everything one full pass over the 1,070,190 outcomes yields.
+
+    The counts and the two sums are produced together, in a single pass, on
+    purpose. Pricing the Blind and the value of checking both need the player's
+    final hand per runout, which only the enumeration knows; computing them
+    anywhere else would mean a second pass that could quietly disagree with the
+    first. Derived quantities are properties here for the same reason: there is
+    one place to read them from, not three that can drift apart.
+    """
+
+    #: Raw counts keyed by :data:`decision.ev.BUCKETS`; they sum to
+    #: :data:`ENUMERATION_SIZE`.
+    counts: dict[str, int]
+    #: Number of turn+river pairs swept; always :data:`RUNOUT_COUNT`.
+    runouts: int
+    #: Total Blind profit over every winning outcome, in units. Each runout
+    #: contributes (its wins) x (that runout's Blind payout).
+    blind_sum: float
+    #: EV of checking, summed over runouts. Divide by ``runouts`` to average it.
+    check_sum: float
+
+    @property
+    def outcomes(self) -> Outcomes:
+        return Outcomes.from_counts(**self.counts)
+
+    @property
+    def wins(self) -> int:
+        return self.counts["win_qualified"] + self.counts["win_unqualified"]
+
+    @property
+    def effective_blind_multiplier(self) -> float:
+        """Blind profit per unit averaged over the winning outcomes.
+
+        Exact, not an estimate -- see the module docstring. Zero when nothing
+        wins, and zero when the hands that do win never pay on the Blind.
+        """
+        return self.blind_sum / self.wins if self.wins else 0.0
+
+    @property
+    def ev_check(self) -> float:
+        """EV of checking this flop: the average optimal river decision."""
+        return self.check_sum / self.runouts
 
 
 @dataclass(frozen=True)
@@ -133,13 +204,19 @@ class FlopDecision:
     #: final hand: turn and river are still to come.
     player_score: int
     player_hand: str
-    #: Always 0.0 for now -- see the module docstring.
+    #: Blind profit per unit, averaged over the winning outcomes. An exact
+    #: expectation rather than a lookup, because the final hand varies with the
+    #: runout -- see :attr:`FlopSweep.effective_blind_multiplier`.
     blind_multiplier: float
     outcomes: Outcomes
     #: Number of outcomes enumerated; always ENUMERATION_SIZE = 1,070,190.
     completions: int
     ev_bet: float
-    ev_fold: float
+    #: The alternative actually available here -- the EV of checking, i.e. of
+    #: playing the turn and river optimally. Always at least -2, since folding
+    #: remains available on the river.
+    ev_check: float
+    #: ``ev_bet - ev_check``. Positive means betting 2x is the better play.
     ev_advantage: float
     #: Win rate at which this decision would flip. ``None`` when it cannot be
     #: measured (a hand that can never win, or never lose, has no crossover).
@@ -161,36 +238,42 @@ class FlopDecision:
             f"[{self.player_hand}]  "
             f"win {self.equity:.2%} / push {self.tie_rate:.2%} / "
             f"lose {self.outcomes.lose:.2%}  "
-            f"EV {self.ev_bet:+.3f} vs give-up {self.ev_fold:+.3f} "
+            f"EV {self.ev_bet:+.3f} vs check {self.ev_check:+.3f} "
             f"(advantage {self.ev_advantage:+.3f}, breakeven {be})"
         )
 
 
-def enumerate_runout_outcomes(
-    hole: Sequence[int], board: Sequence[int]
-) -> dict[str, int]:
-    """Count every (dealer hand, turn+river) pair into the five spec-9 buckets.
+def enumerate_flop_outcomes(
+    hole: Sequence[int], board: Sequence[int], table: PayoutTable = PAYOUT_TABLE
+) -> FlopSweep:
+    """Sweep every (turn+river, dealer hand) pair into the five spec-9 buckets.
 
-    Returns raw counts keyed by the bucket names in :data:`decision.ev.BUCKETS`;
-    they sum to :data:`ENUMERATION_SIZE`. Counts rather than probabilities, so
-    the caller can see the enumeration's size -- the same contract as
-    :func:`decision.river.enumerate_dealer_outcomes`.
+    Returns a :class:`FlopSweep`: the raw counts plus the two accumulators that
+    pricing the Blind and the value of checking need. Everything comes out of
+    one traversal -- see the class docstring for why that is not just an
+    optimisation.
 
-    The dealer hand and the runout are drawn as two *separate* combinations.
+    The runout and the dealer hand are drawn as two *separate* combinations.
     See the module docstring for why splitting 4-card subsets instead is wrong.
     """
     deck = remaining_deck(hole, board)
     flop = list(board)
 
     counts = dict.fromkeys(BUCKETS, 0)
+    blind_sum = 0.0
+    check_sum = 0.0
+    runouts = 0
+
     for runout in combinations(deck, TURN_AND_RIVER):
         board5 = flop + list(runout)
-        # Hoisted: the player's score depends only on the five board cards, so
-        # this is computed once per runout rather than once per (runout, dealer)
-        # pair -- 1,081 times instead of 1,070,190. Halves the runtime.
+        # Hoisted: the player's final score depends only on the five board
+        # cards, so this is computed once per runout rather than once per
+        # (runout, dealer) pair -- 1,081 times instead of 1,070,190.
         player_score = best_hand_rank(hole, board5)
+        player_blind = blind_multiplier_for_score(player_score, table)
 
         remaining = [card for card in deck if card not in runout]
+        runout_counts = dict.fromkeys(BUCKETS, 0)
         for dealer in combinations(remaining, DEALER_HAND_SIZE):
             dealer_score = best_hand_rank(dealer, board5)
             qualified = dealer_qualifies(dealer_score)
@@ -198,12 +281,32 @@ def enumerate_runout_outcomes(
             # treys: LOWER score is the STRONGER hand, so this comparison reads
             # backwards from how it looks. Player wins when their score is lower.
             if player_score < dealer_score:
-                counts["win_qualified" if qualified else "win_unqualified"] += 1
+                runout_counts["win_qualified" if qualified else "win_unqualified"] += 1
             elif player_score > dealer_score:
-                counts["lose_qualified" if qualified else "lose_unqualified"] += 1
+                runout_counts["lose_qualified" if qualified else "lose_unqualified"] += 1
             else:
-                counts["push"] += 1
-    return counts
+                runout_counts["push"] += 1
+
+        for bucket in BUCKETS:
+            counts[bucket] += runout_counts[bucket]
+
+        # The Blind pays per final hand class, so it is worth this runout's
+        # multiplier on each of this runout's wins -- and 0 on a tie or a loss,
+        # which is why only the win buckets are counted. bucket_payoffs() credits
+        # the multiplier on exactly those same two buckets, so the effective
+        # multiplier below reproduces this total exactly.
+        wins = runout_counts["win_qualified"] + runout_counts["win_unqualified"]
+        blind_sum += wins * player_blind
+
+        # Checking the flop is worth a known board plus an optimal river. The
+        # dealer's holdings are already counted, so the river verdict here is
+        # free -- and exact, unlike the sampled rates spec 3c originally wanted.
+        check_sum += optimal_ev(Outcomes.from_counts(**runout_counts), player_blind, table)
+        runouts += 1
+
+    return FlopSweep(
+        counts=counts, runouts=runouts, blind_sum=blind_sum, check_sum=check_sum
+    )
 
 
 def decide(
@@ -213,10 +316,9 @@ def decide(
 ) -> FlopDecision:
     """Exact flop verdict for a known 2-card hand and 3-card board.
 
-    Bets 2x when raising beats giving the hand up, checks otherwise. As on the
-    river, the verdict comes from comparing the exact EVs rather than the win
-    rate against the threshold -- equivalent, but immune to a degenerate
-    threshold.
+    Bets 2x when raising beats checking, checks otherwise. As on the river, the
+    verdict comes from comparing the exact EVs rather than the win rate against
+    the threshold -- equivalent, but immune to a degenerate threshold.
 
     Costs ~8-10s: 1,070,190 outcomes, each scoring two 7-card hands. Acceptable
     because there is no live-latency constraint here (single player against the
@@ -228,26 +330,25 @@ def decide(
         )
 
     player_score = best_hand_rank(hole, board)
-    counts = enumerate_runout_outcomes(hole, board)
-    outcomes = Outcomes.from_counts(**counts)
+    sweep = enumerate_flop_outcomes(hole, board, table)
 
-    # Deferred by design (spec 10, locked decision 3): the Blind pays per final
-    # hand class, and the final hand is what is being enumerated.
-    blind = 0.0
-
+    outcomes = sweep.outcomes
+    blind = sweep.effective_blind_multiplier
+    ev_check = sweep.ev_check
     ev_bet = ev_of_bet(FLOP_PLAY_MULTIPLIER, outcomes, blind, table)
-    ev_fold = ev_of_fold(table)
 
     return FlopDecision(
-        action=FlopAction.BET if ev_bet > ev_fold else FlopAction.CHECK,
+        action=FlopAction.BET if ev_bet > ev_check else FlopAction.CHECK,
         multiplier=FLOP_PLAY_MULTIPLIER,
         player_score=player_score,
         player_hand=hand_name(player_score),
         blind_multiplier=blind,
         outcomes=outcomes,
-        completions=sum(counts.values()),
+        completions=sum(sweep.counts.values()),
         ev_bet=ev_bet,
-        ev_fold=ev_fold,
-        ev_advantage=ev_bet - ev_fold,
-        breakeven=breakeven_or_none(outcomes, FLOP_PLAY_MULTIPLIER, blind, table),
+        ev_check=ev_check,
+        ev_advantage=ev_bet - ev_check,
+        breakeven=breakeven_or_none(
+            outcomes, FLOP_PLAY_MULTIPLIER, blind, table, baseline=ev_check
+        ),
     )
