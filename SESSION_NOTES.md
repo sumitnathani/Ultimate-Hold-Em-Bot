@@ -30,8 +30,11 @@ a later phase and must not be touched without asking first.
   truth for validating the pre-flop table later.
 - `preflop.py` is **half built**: the 169-class canonicaliser only. `decide()`
   lands once the table it reads exists.
-- **Next concrete step:** `tools/generate_preflop_table.py` (spec 3d). Its shape
-  is settled — see "Pre-flop generator and bias probe".
+- `tools/generate_preflop_table.py` is **built, tested and committed** (`24ced31`).
+  The full 169-class run is **in flight** (~4h: 1.6h rates + 2.5h baselines,
+  measured this session); it checkpoints per class, so an interrupt is survivable.
+- **Next concrete step:** `decision/preflop.py::decide()` once the table lands,
+  then the tier-2 dense baseline pass, then the F-term probe.
 
 ## Where the reasoning lives
 
@@ -85,9 +88,10 @@ the code. Read it there; it is not duplicated here.
   `p_win` while holding it fixed. Rejected: also storing the full conditional
   final-hand distribution — buys nothing for the decision.
 - **Baseline sampling is two-tier and adaptive.** 6,000 boards for all 169
-  classes (SE 0.02, 2.13h), then a denser pass (~60,000 boards, SE 0.006,
-  ~7.6 min/class) for any class whose |margin| < 3×SE. 6,000 alone cannot resolve
-  a verdict whose margin is ~0.01 — the noise is larger than the signal.
+  classes (SE 0.02, 2.50h measured), then a denser pass (~60,000 boards,
+  SE 0.006, ~9 min/class) for any class whose |margin| < 3×SE. 6,000 alone
+  cannot resolve a verdict whose margin is ~0.01 — the noise is larger than the
+  signal.
 - **The F term is measured, not asserted**, by `tools/measure_flop_bias.py`,
   separate from the generator (different output, different lifetime):
 
@@ -127,10 +131,11 @@ is `river.decide` per board — the same call `flop.py` already makes per runout
 so there is no new logic, and the Blind needs no effective-multiplier trick here
 because the board is known, so it is a plain lookup.
 
-Measured cost: **7.55 ms per board**, board-level SD ≈ 1.5–1.6, tails
-well-behaved (top-3 boards contribute 0.01–0.015 of the mean, max +12 — the
-500:1 royal does not blow the variance up). 6,000 boards/class → 45s/class →
-**2.13h for all 169 classes, SE 0.02.**
+Measured cost: **8.9 ms per board** (an earlier session measured 7.55ms; this
+one's figure is the one the generator's ETA is built on), board-level SD ≈ 1.5,
+tails well-behaved (top-3 boards contribute 0.01–0.015 of the mean, max +12 — the
+500:1 royal does not blow the variance up). 6,000 boards/class → 53s/class →
+**2.50h for all 169 classes, SE 0.02** (confirmed: 0.068 at 500 boards).
 
 ### Rejected: full-board showdown equity
 
@@ -163,7 +168,7 @@ per-class number to check against that class's margin.
 They cannot share samples. The rates want millions of *samples* (a dealer hand
 is ~14µs to sample, and board-level variance dominates — Rao-Blackwellizing the
 dealer is ~100x worse per unit cost), while the river decision needs the
-dealer's exact distribution and so wants distinct *boards*, where 7.55ms is the
+dealer's exact distribution and so wants distinct *boards*, where 8.9ms is the
 floor. Each of the 2M samples carries only one dealer hand, so none of them can
 be reused for the baseline.
 

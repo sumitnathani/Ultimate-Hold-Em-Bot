@@ -12,13 +12,14 @@ random board cards, agree the hole cards, and bucket the result. This is the one
 place sampling is genuinely unavoidable in the whole project: the exact count is
 C(50,7) = 99,884,400 per holding, which is ~0.4h *per distinct holding* against
 1,326 of them. Millions of *samples* are wanted here, and the dealer is cheap to
-sample (~14us a draw), so each sample carries its own dealer hand.
+sample (~14us of play, ~17us including both hand evaluations), so each sample
+carries its own dealer hand.
 
 **Baseline** (``--boards``, default 6,000). The pre-flop alternative to a 4x bet
 is *checking*, and checking buys two further decisions, not one. Its value is
 averaged over boards with the same definition the flop already uses per runout:
 ``river.optimal_ev`` over the dealer's exact C(45,2) distribution. That needs
-distinct *boards* at 7.55ms each, and no rate sample can be reused for it --
+distinct *boards* at ~8.9ms each, and no rate sample can be reused for it --
 each carries one dealer hand out of 990, when the river wants all of them.
 
 So the two loops are additive in cost, and the table stores one result from
@@ -48,7 +49,9 @@ baseline and keeps the rates, since they are already converged.
 
 CHECKPOINTING
 -------------
-The full run is ~3.5h, so waiting until the end to write anything would mean
+The full run is ~4h measured on the development machine -- 1.6h of rates
+(2,000,000 trials x 169 at ~17us) plus 2.5h of baselines (6,000 boards x 169 at
+~8.9ms) -- so waiting until the end to write anything would mean
 losing all of it to a crash, a kill, or a context limit. Each class is written
 as it completes, and the write is atomic (temp file + replace) so an interrupted
 write cannot truncate the table. Re-running skips work that is already done at
