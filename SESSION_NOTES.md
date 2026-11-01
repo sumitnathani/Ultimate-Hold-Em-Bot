@@ -23,12 +23,15 @@ a later phase and must not be touched without asking first.
   | `decision/ev.py` | 3e | `5aaf4ea`, `deb0847` | 25 |
   | `decision/river.py` | 3b | `355b7d5`, `deb0847` | 20 |
   | `decision/flop.py` | 3c | `8091353`, `aa95a91` | 18 |
+  | `decision/preflop.py` | 3d | `9b77c21` | 15 |
 
-- Full suite: **74 tests, ~40s, green.**
+- Full suite: **89 tests, ~45s, green.**
 - **Both built streets are exact** (exhaustive enumeration), so both are ground
   truth for validating the pre-flop table later.
-- **Next concrete step:** `tools/generate_preflop_table.py` + `decision/preflop.py`
-  (spec 3d). Two judgment calls to settle first — see "Open" below.
+- `preflop.py` is **half built**: the 169-class canonicaliser only. `decide()`
+  lands once the table it reads exists.
+- **Next concrete step:** `tools/generate_preflop_table.py` (spec 3d). Its shape
+  is settled — see "Pre-flop generator and bias probe".
 
 ## Where the reasoning lives
 
@@ -100,8 +103,6 @@ the code. Read it there; it is not duplicated here.
 
 ## Still open
 
-- Where the 169-class canonicalizer lives — both the generator and `preflop.py`
-  need it, and `preflop.py` does not exist yet.
 - River validation against published charts (next steps 3 and 4).
 
 ## Pre-flop baseline (spec 3d) — decided, not yet built
@@ -242,8 +243,11 @@ decide(hole, board, table=PAYOUT_TABLE) -> FlopDecision    # .action BET|CHECK
    unavoidable — see the corrected count above. It also runs the board-averaged
    `check_value` loop (6,000 boards/class) and stores `B_eff`; see "Pre-flop
    generator and bias probe" above for the settled shape of all three.
-2. `decision/preflop.py` (spec 3d): canonicalize two hole cards into one of the
-   169 classes, look up the stored rates, decide bet 4x / check.
+2. `decision/preflop.py`: the canonicaliser is done and committed; what remains
+   is `decide()` — canonicalise two hole cards into one of the 169 classes, look
+   up the stored rates, decide bet 4x / check. Needs a **lazy** table load, so
+   that importing `starting_hand_class` from here in the generator does not
+   require the JSON to exist yet.
 3. Validate `river.py` output against published UTH river strategy charts for a
    few known hands — still outstanding from the previous session and not yet
    done; the flop is now also exact enough to cross-check the same way.
