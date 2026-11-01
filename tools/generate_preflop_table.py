@@ -53,9 +53,25 @@ The full run is ~4h measured on the development machine -- 1.6h of rates
 (2,000,000 trials x 169 at ~17us) plus 2.5h of baselines (6,000 boards x 169 at
 ~8.9ms) -- so waiting until the end to write anything would mean
 losing all of it to a crash, a kill, or a context limit. Each class is written
-as it completes, and the write is atomic (temp file + replace) so an interrupted
-write cannot truncate the table. Re-running skips work that is already done at
-the requested sample sizes; ``--force`` redoes it.
+by the parent as it completes, and the write is atomic (temp file + replace) so
+an interrupted write cannot truncate the table. Re-running skips work that is
+already done at the requested sample sizes; ``--force`` redoes it.
+
+PARALLELISM
+-----------
+Classes are independent, and each draws from its own seed, so measuring several
+at once changes no number: a parallel table equals a serial one row for row
+(asserted by the tests). Each class is therefore one task for one worker
+process, and ``--jobs`` sets how many run at once (default: one per CPU).
+
+The parent owns the file -- workers only return results -- so there is no lock
+and an interrupted run still leaves every completed class on disk. Completion
+order is arbitrary, so rows are re-sorted into
+:func:`decision.preflop.starting_hand_classes` order before every write, and
+the table diffs cleanly between runs.
+
+Sample sizes are unchanged by all this: ``--trials`` and ``--boards`` are per
+class, not divided among workers. Parallelism shortens the wall clock only.
 
 Reproducibility: each class draws from its own seed derived from
 ``(--seed, label, loop)``, so class #57's numbers do not depend on whether the
@@ -69,13 +85,14 @@ import argparse
 import hashlib
 import json
 import math
+import multiprocessing
 import os
 import random
 import sys
 import time
 from itertools import combinations
 from pathlib import Path
-from typing import Sequence
+from typing import Iterator, NamedTuple, Sequence
 
 from treys import Card
 
@@ -257,6 +274,65 @@ def measure_class(
     return entry
 
 
+class Task(NamedTuple):
+    """One class's pending work, in the shape a worker process receives it.
+
+    A named tuple rather than an argument list because ``multiprocessing``
+    pickles it: everything here is a plain builtin, so it crosses the process
+    boundary without any application object needing to be pickle-aware.
+    """
+
+    label: str
+    hole: tuple[int, ...]
+    loops: tuple[str, ...]
+    trials: int
+    boards: int
+    seed: int
+
+
+def measure_task(task: Task) -> tuple[str, dict, tuple[str, ...], float]:
+    """Worker entry point: measure one class and report what it cost.
+
+    Module-level and argument-only so ``multiprocessing`` can pickle it under
+    Windows' spawn start method. It never touches the table file -- the parent
+    collects results and does every write -- so workers cannot race each other
+    or a checkpoint write.
+
+    Elapsed time is measured here rather than in the parent because a result's
+    arrival time in the parent is skewed by the other workers; this is the
+    class's own cost.
+    """
+    started = time.monotonic()
+    entry = measure_class(
+        task.label,
+        task.hole,
+        trials=task.trials,
+        boards=task.boards,
+        seed=task.seed,
+        loops=task.loops,
+    )
+    return task.label, entry, task.loops, time.monotonic() - started
+
+
+def measure_all(
+    tasks: Sequence[Task], jobs: int
+) -> Iterator[tuple[str, dict, tuple[str, ...], float]]:
+    """Yield one result per task, serially or from a worker pool.
+
+    A pool is only spawned for more than one task: a single class runs in this
+    process, which keeps targeted ``--classes`` runs free of spawn overhead (and
+    keeps the unit tests off the process machinery). ``imap_unordered`` reports
+    each class the moment it finishes, so checkpointing stays per class under
+    parallelism exactly as it is serially.
+    """
+    if jobs <= 1 or len(tasks) <= 1:
+        for task in tasks:
+            yield measure_task(task)
+        return
+    with multiprocessing.Pool(processes=jobs) as pool:
+        yield from pool.imap_unordered(measure_task, tasks, chunksize=1)
+
+
 def load_table(path: Path) -> dict:
     """The stored table, or an empty one. Raises if the schema has moved on."""
     if not path.exists():
@@ -305,6 +381,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--trials", type=int, default=DEFAULT_TRIALS)
     parser.add_argument("--boards", type=int, default=DEFAULT_BOARDS)
     parser.add_argument(
+        "--jobs",
+        type=int,
+        default=os.cpu_count() or 1,
+        metavar="N",
+        help="worker processes, one class each (default: one per CPU; 1 is serial)",
+    )
+    parser.add_argument(
         "--classes",
         nargs="+",
         metavar="LABEL",
@@ -338,6 +421,8 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.rates_only and args.baseline_only:
         raise SystemExit("--rates-only and --baseline-only are mutually exclusive")
+    if args.jobs < 1:
+        raise SystemExit("--jobs must be at least 1")
     loops = []
     if not args.baseline_only:
         loops.append("rates")
@@ -368,11 +453,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         }
     )
 
-    started = time.monotonic()
-    measured = 0
-    reused = 0
-
-    for index, label in enumerate(labels, start=1):
+    # Plan first, measure second: only classes with unfinished work become
+    # tasks, and every task names exactly the loops it still owes.
+    tasks: list[Task] = []
+    for label in labels:
         entry = table["classes"].get(label, {})
         todo = []
         if "rates" in loops and (
@@ -385,33 +469,46 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.force or _needs(entry, "boards", args.boards)
         ):
             todo.append("baseline")
-
-        if not todo:
-            reused += 1
-            continue
-
-        class_started = time.monotonic()
-        entry.update(
-            measure_class(
-                label,
-                representatives[label],
-                trials=args.trials,
-                boards=args.boards,
-                seed=args.seed,
-                loops=tuple(todo),
+        if todo:
+            tasks.append(
+                Task(
+                    label=label,
+                    hole=tuple(representatives[label]),
+                    loops=tuple(todo),
+                    trials=args.trials,
+                    boards=args.boards,
+                    seed=args.seed,
+                )
             )
-        )
-        table["classes"][label] = entry
+
+    started = time.monotonic()
+    measured = 0
+    reused = len(labels) - len(tasks)
+
+    for label, entry, todo, seconds in measure_all(tasks, args.jobs):
+        # A baseline-only re-measure must keep the stored rates, so merge into
+        # the existing row rather than replacing it.
+        table["classes"].setdefault(label, {}).update(entry)
+        # Workers finish in arbitrary order; keep rows in chart order so the
+        # JSON stays diffable from run to run.
+        table["classes"] = {
+            name: table["classes"][name]
+            for name in known
+            if name in table["classes"]
+        }
         save_table(args.output, table)
         measured += 1
 
         if not args.quiet:
             elapsed = time.monotonic() - started
-            remaining = (len(labels) - index) * (elapsed / index)
+            # Throughput-based: with parallel completion no single index says
+            # how much wall time is left, only how many classes and how long
+            # the measured ones took on average.
+            remaining = (len(tasks) - measured) * (elapsed / measured)
             print(
-                f"[{index:>3}/{len(labels)}] {label:<4} {'+'.join(todo):<17} "
-                f"{time.monotonic() - class_started:6.1f}s  "
-                f"elapsed {_format_span(elapsed)}  eta {_format_span(remaining)}",
+                f"[{measured:>3}/{len(tasks)}] {label:<4} {'+'.join(todo):<17} "
+                f"{seconds:6.1f}s  elapsed {_format_span(elapsed)}  "
+                f"eta {_format_span(remaining)}",
                 flush=True,
             )
 

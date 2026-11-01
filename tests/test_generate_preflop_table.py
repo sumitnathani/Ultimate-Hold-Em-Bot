@@ -11,12 +11,19 @@ can corrupt the table.
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 from itertools import combinations
+from pathlib import Path
 
 import pytest
 
 from decision.evaluator import full_deck, parse_cards
-from decision.preflop import STARTING_HAND_CLASS_COUNT, starting_hand_class
+from decision.preflop import (
+    STARTING_HAND_CLASS_COUNT,
+    starting_hand_class,
+    starting_hand_classes,
+)
 from decision.ev import BUCKETS, ev_of_fold
 from tools.generate_preflop_table import (
     class_seed,
@@ -30,6 +37,14 @@ from tools.generate_preflop_table import (
 #: Toy settings, small enough that the whole file runs in seconds.
 TRIALS = 3_000
 BOARDS = 60
+
+#: The CLI is run from the project root, like a user would run it.
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+
+def run(argv: list[str]) -> int:
+    """``main`` with the pool disabled: spawning workers per test is pure cost."""
+    return main([*argv, "--jobs", "1"])
 
 
 def c(text: str) -> list[int]:
@@ -99,12 +114,46 @@ def test_a_class_measures_the_same_alone_as_in_a_batch(tmp_path):
     solo, batched = tmp_path / "solo.json", tmp_path / "batched.json"
     common = ["--seed", "11", "--trials", str(TRIALS), "--boards", str(BOARDS)]
 
-    main(["--output", str(solo), "--classes", "AKs", *common, "--quiet"])
-    main(["--output", str(batched), "--classes", "AA", "AKs", "72o", *common, "--quiet"])
+    run(["--output", str(solo), "--classes", "AKs", *common, "--quiet"])
+    run(["--output", str(batched), "--classes", "AA", "AKs", "72o", *common, "--quiet"])
 
-    assert (
-        load_table(solo)["classes"]["AKs"] == load_table(batched)["classes"]["AKs"]
+    assert load_table(solo)["classes"]["AKs"] == load_table(batched)["classes"]["AKs"]
+
+
+def test_a_parallel_run_reproduces_a_serial_one(tmp_path):
+    """Parallelism may change the clock, never a number.
+
+    Each class draws from its own seed, so a table measured several classes at
+    a time must equal one measured serially, row for row. Run through the CLI
+    in a subprocess: ``multiprocessing`` spawns children that import the entry
+    module, which is not something to do from inside a pytest process.
+    """
+    serial, parallel = tmp_path / "serial.json", tmp_path / "parallel.json"
+    common = ["--seed", "13", "--trials", str(TRIALS), "--boards", str(BOARDS), "--quiet"]
+    labels = ["AA", "AKs", "72o"]
+
+    run(["--output", str(serial), "--classes", *labels, *common])
+    completed = subprocess.run(
+        [
+            sys.executable, "-m", "tools.generate_preflop_table",
+            "--output", str(parallel), "--classes", *labels,
+            "--jobs", "3", *common,
+        ],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+        timeout=300,
     )
+    assert completed.returncode == 0, completed.stderr
+
+    serial_table = load_table(serial)["classes"]
+    parallel_table = load_table(parallel)["classes"]
+    assert parallel_table == serial_table
+    # Out-of-order completion must not scramble the file: rows stay in chart
+    # order, which is what makes the table diffable.
+    assert list(parallel_table) == [
+        label for label in starting_hand_classes() if label in parallel_table
+    ]
 
 
 # --------------------------------------------------------------------------
@@ -159,14 +208,14 @@ def test_a_second_run_does_no_work(tmp_path, capsys):
         "--output", str(out), "--classes", "AA", "AKs",
         "--trials", str(TRIALS), "--boards", str(BOARDS),
     ]
-    main([*argv, "--quiet"])
+    run([*argv, "--quiet"])
     first = load_table(out)
 
-    main([*argv, "--quiet"])
+    run([*argv, "--quiet"])
     assert load_table(out) == first
     assert "2 measured, 0 already current" in capsys.readouterr().out
 
-    main([*argv, "--quiet"])
+    run([*argv, "--quiet"])
     assert "0 measured, 2 already current" in capsys.readouterr().out
 
 
@@ -182,7 +231,7 @@ def test_a_completed_class_survives_an_interrupted_run(tmp_path):
         ),
         encoding="utf-8",
     )
-    main(
+    run(
         [
             "--output", str(partial), "--classes", "AA", "AKs",
             "--trials", str(TRIALS), "--boards", str(BOARDS), "--quiet",
@@ -198,7 +247,7 @@ def test_a_completed_class_survives_an_interrupted_run(tmp_path):
 def test_a_denser_baseline_run_keeps_the_rates(tmp_path):
     """Tier 2 re-measures the baseline without redoing 2,000,000 trials."""
     out = tmp_path / "t.json"
-    main(
+    run(
         [
             "--output", str(out), "--classes", "AKs", "--trials", str(TRIALS),
             "--boards", str(BOARDS), "--quiet",
@@ -206,7 +255,7 @@ def test_a_denser_baseline_run_keeps_the_rates(tmp_path):
     )
     before = load_table(out)["classes"]["AKs"]
 
-    main(
+    run(
         [
             "--output", str(out), "--classes", "AKs", "--baseline-only",
             "--boards", str(BOARDS * 2), "--quiet",
@@ -221,7 +270,7 @@ def test_a_denser_baseline_run_keeps_the_rates(tmp_path):
 
 def test_the_table_records_the_cards_behind_every_row(tmp_path):
     out = tmp_path / "t.json"
-    main(["--output", str(out), "--classes", "AKs", "--trials", "10", "--boards", "3", "--quiet"])
+    run(["--output", str(out), "--classes", "AKs", "--trials", "10", "--boards", "3", "--quiet"])
     reps = load_table(out)["meta"]["representatives"]
     assert len(reps) == STARTING_HAND_CLASS_COUNT
     assert starting_hand_class(c(reps["AKs"])) == "AKs"
@@ -235,16 +284,21 @@ def test_the_table_records_the_cards_behind_every_row(tmp_path):
 
 def test_it_refuses_a_label_that_is_not_a_starting_hand(tmp_path):
     with pytest.raises(SystemExit, match="not starting-hand classes"):
-        main(["--output", str(tmp_path / "t.json"), "--classes", "AKx", "--quiet"])
+        run(["--output", str(tmp_path / "t.json"), "--classes", "AKx", "--quiet"])
 
 
 def test_it_refuses_two_conflicting_loops(tmp_path):
     with pytest.raises(SystemExit, match="mutually exclusive"):
-        main(["--output", str(tmp_path / "t.json"), "--rates-only", "--baseline-only"])
+        run(["--output", str(tmp_path / "t.json"), "--rates-only", "--baseline-only"])
+
+
+def test_it_refuses_zero_workers(tmp_path):
+    with pytest.raises(SystemExit, match="--jobs"):
+        main(["--output", str(tmp_path / "t.json"), "--classes", "AA", "--jobs", "0"])
 
 
 def test_it_refuses_a_table_from_another_schema_version(tmp_path):
     stale = tmp_path / "t.json"
     stale.write_text(json.dumps({"meta": {"version": 99}, "classes": {}}), encoding="utf-8")
     with pytest.raises(SystemExit, match="schema version"):
-        main(["--output", str(stale), "--classes", "AA", "--quiet"])
+        run(["--output", str(stale), "--classes", "AA", "--quiet"])
