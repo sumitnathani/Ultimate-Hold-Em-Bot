@@ -1,25 +1,43 @@
-"""Tests for decision/preflop.py (spec 3d, canonicalisation half).
+"""Tests for decision/preflop.py (spec 3d).
 
-Unlike the other modules there is nothing to compute here -- but there is an
-equivalence relation to get right, and a wrong one would mislabel every row of
-the pre-flop table in a way no downstream test could see. So the tests are
-structural: sweep all C(52,2) = 1,326 holdings and check that they partition
-into exactly the 169 classes, with the multiplicities suit symmetry demands.
+Two halves, tested for different things.
 
-The sweep is cheap (1,326 holdings, no scoring), so these are all exact
-assertions rather than tolerances.
+The **canonicaliser** has nothing to compute, but it has an equivalence
+relation to get right, and a wrong one would mislabel every row of the table in
+a way no downstream test could see. Those tests are structural: sweep all
+C(52,2) = 1,326 holdings and check they partition into exactly the 169 classes
+with the multiplicities suit symmetry demands.
+
+**decide()** is a lookup, so its tests cover the two things a lookup can get
+wrong -- reading the wrong row (every class is decided and must report its own
+label), and disagreeing with the row it read (the verdict must be that row's
+own EV comparison). Plus the loader's own contract: lazy, cached, and loud
+about a malformed table.
+
+Both halves are cheap -- 1,326 canonicalisations and 169 dictionary reads -- so
+these are exact assertions rather than tolerances.
 """
 
 from __future__ import annotations
 
+import json
+import math
 from collections import Counter
 from itertools import combinations
 
 import pytest
 
+from decision import preflop
 from decision.evaluator import full_deck, parse_cards
 from decision.preflop import (
+    DEFAULT_TABLE_PATH,
+    PREFLOP_PLAY_MULTIPLIER,
     STARTING_HAND_CLASS_COUNT,
+    PreflopAction,
+    PreflopDecision,
+    clear_table_cache,
+    decide,
+    load_table,
     starting_hand_class,
     starting_hand_classes,
 )
@@ -182,3 +200,176 @@ def test_it_rejects_the_same_card_twice():
     card = c("As")
     with pytest.raises(ValueError, match="same card twice"):
         starting_hand_class(card + card)
+
+
+# --------------------------------------------------------------------------
+# decide(): the lookup (spec 3d)
+# --------------------------------------------------------------------------
+
+
+def holding_for(label: str) -> list[int]:
+    """A concrete two-card holding that canonicalises to ``label``.
+
+    Pairs get one suit each, suited hands share a suit, offsuit hands do not.
+    The round trip is asserted in
+    :func:`test_every_class_decides_and_reports_its_own_label`, so a label list
+    that drifted could not quietly test the wrong row.
+    """
+    high, low = label[0], label[1]
+    if len(label) == 2:
+        return c(f"{high}s {low}h")
+    return c(f"{high}s {low}{'s' if label.endswith('s') else 'h'}")
+
+
+@pytest.fixture(autouse=True)
+def _fresh_table_cache():
+    """The loader caches by path; keep tests from seeing each other's tables."""
+    clear_table_cache()
+    yield
+    clear_table_cache()
+
+
+@pytest.fixture(scope="module")
+def decisions() -> dict[str, PreflopDecision]:
+    """One decision per class. A dictionary read each, so: milliseconds."""
+    return {label: decide(holding_for(label)) for label in starting_hand_classes()}
+
+
+def test_every_class_decides_and_reports_its_own_label(decisions):
+    assert len(decisions) == STARTING_HAND_CLASS_COUNT
+    for label, decision in decisions.items():
+        assert starting_hand_class(holding_for(label)) == label
+        assert decision.hand_class == label
+
+
+def test_the_verdict_is_the_stored_ev_comparison(decisions):
+    """BET exactly when betting beats checking -- no separate rule to drift."""
+    for label, decision in decisions.items():
+        expected = (
+            PreflopAction.BET
+            if decision.ev_bet > decision.ev_check
+            else PreflopAction.CHECK
+        )
+        assert decision.action is expected, label
+        assert decision.ev_advantage == pytest.approx(
+            decision.ev_bet - decision.ev_check
+        )
+        assert decision.multiplier == PREFLOP_PLAY_MULTIPLIER
+
+
+def test_the_lookup_reproduces_the_row_it_read(decisions):
+    """decide() must add no maths of its own beyond the EV comparison."""
+    rows = load_table()["classes"]
+    for label, decision in decisions.items():
+        row = rows[label]
+        assert decision.ev_check == pytest.approx(row["check_value"])
+        assert decision.blind_multiplier == pytest.approx(row["blind_multiplier"])
+        assert decision.check_value_se == pytest.approx(row["check_value_se"])
+        assert decision.trials == row["trials"]
+        assert decision.boards == row["boards"]
+        assert decision.outcomes.total == pytest.approx(1.0)
+        assert math.isfinite(decision.ev_bet)
+        assert math.isfinite(decision.ev_check)
+
+
+def test_both_actions_actually_occur(decisions):
+    """A table that made everything check (or everything bet) would be a bug the
+    per-class assertions above could not see."""
+    counts = Counter(d.action for d in decisions.values())
+    assert counts[PreflopAction.BET] > 0
+    assert counts[PreflopAction.CHECK] > 0
+
+
+def test_the_resolvable_flag_tracks_the_margin_against_the_baseline_se(decisions):
+    for decision in decisions.values():
+        assert decision.resolvable == (
+            abs(decision.ev_advantage) > decision.check_value_se
+        )
+
+
+def test_every_decision_summarises_without_error(decisions):
+    for decision in decisions.values():
+        assert decision.hand_class in decision.summary()
+
+
+# --- reference verdicts (anchors against the committed table) ---
+
+
+def test_reference_verdicts():
+    """The extremes must land where the hand chart says they do."""
+    assert decide(c("As Ah")).action is PreflopAction.BET
+    assert decide(c("7c 2d")).action is PreflopAction.CHECK
+    assert decide(c("3h 2d")).action is PreflopAction.CHECK
+
+
+def test_the_pairs_bet_down_to_threes_and_deuces_check(decisions):
+    """Where the pair range ends is a fact about *this* table, not a rule of
+    poker -- anchored so a regenerated table cannot move it unnoticed."""
+    for label in ["AA", "KK", "QQ", "JJ", "TT", "99", "88", "77", "66", "55", "44", "33"]:
+        assert decisions[label].action is PreflopAction.BET, label
+    assert decisions["22"].action is PreflopAction.CHECK
+
+
+def test_a_holding_decides_the_same_however_its_suits_fall():
+    """The whole point of the 169 classes: which suits you hold must not matter."""
+    suited = [c("As Ks"), c("Ah Kh"), c("Ad Kd"), c("Ac Kc")]
+    assert {decide(h).hand_class for h in suited} == {"AKs"}
+    assert len({decide(h).action for h in suited}) == 1
+
+    offsuit = [c("As Kh"), c("Ah Ks"), c("Ad Kc"), c("Ac Kd")]
+    assert {decide(h).hand_class for h in offsuit} == {"AKo"}
+    assert len({decide(h).action for h in offsuit}) == 1
+
+
+# --------------------------------------------------------------------------
+# The table loader: lazy, cached, and loud about a bad table
+# --------------------------------------------------------------------------
+
+
+def test_the_default_path_is_the_committed_table():
+    assert DEFAULT_TABLE_PATH.is_file()
+    assert DEFAULT_TABLE_PATH.name == "preflop_table.json"
+
+
+def test_the_table_is_not_read_until_a_decision_is_made(monkeypatch, tmp_path):
+    """Importing preflop must not need the table.
+
+    The generator imports :func:`starting_hand_class` from this module and is
+    what *creates* the table, so a load at import time would break the very run
+    that produces it -- and would do so only on a clean checkout, which is the
+    worst moment to find out.
+    """
+    monkeypatch.setattr(preflop, "DEFAULT_TABLE_PATH", tmp_path / "absent.json")
+
+    assert starting_hand_class(c("As Ks")) == "AKs"
+    assert preflop._TABLE_CACHE == {}
+
+    with pytest.raises(FileNotFoundError):
+        decide(c("As Ks"))
+
+
+def test_the_table_is_parsed_once_per_path():
+    assert load_table() is load_table()
+
+
+def test_a_missing_table_raises_rather_than_deciding_on_nothing(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        load_table(tmp_path / "nope.json")
+
+
+def test_it_rejects_a_table_with_a_class_missing(tmp_path):
+    table = json.loads(DEFAULT_TABLE_PATH.read_text())
+    del table["classes"]["AA"]
+    bad = tmp_path / "bad.json"
+    bad.write_text(json.dumps(table))
+    with pytest.raises(ValueError, match="class mismatch"):
+        load_table(bad)
+
+
+def test_it_rejects_a_row_with_a_field_missing(tmp_path):
+    table = json.loads(DEFAULT_TABLE_PATH.read_text())
+    del table["classes"]["AA"]["check_value"]
+    bad = tmp_path / "bad.json"
+    bad.write_text(json.dumps(table))
+    with pytest.raises(ValueError, match="missing"):
+        load_table(bad)
