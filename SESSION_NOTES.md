@@ -10,12 +10,13 @@ drift; the repo is the truth.**
 Scope: `decision/` and `tools/` only. `perception/`, `action/` and `main.py` are
 a later phase and must not be touched without asking first.
 
-## Status as of 2026-11-01
+## Status as of 2026-11-06
 
 - Branch `main`; everything is committed there. (Spec section 10's claim that
   work was happening on a `decision-engine` branch was wrong — no such branch
   ever existed.)
-- Built, tested, committed:
+- **The decision engine is complete.** All five modules decide, and `tools/
+  simulate.py` plays full hands through them. Built, tested, committed:
 
   | Module | Spec | Commit | Tests |
   | --- | --- | --- | --- |
@@ -23,9 +24,10 @@ a later phase and must not be touched without asking first.
   | `decision/ev.py` | 3e | `5aaf4ea`, `deb0847` | 25 |
   | `decision/river.py` | 3b | `355b7d5`, `deb0847` | 20 |
   | `decision/flop.py` | 3c | `8091353`, `aa95a91` | 18 |
-  | `decision/preflop.py` | 3d | `9b77c21` | 15 (canonicaliser only) |
+  | `decision/preflop.py` | 3d | `9b77c21`, `390da5e` | 30 (canonicaliser **and** `decide()`) |
+  | `tools/simulate.py` | — | `4436f7e` | 22 |
 
-- Full suite: **109 tests, ~50s, green.**
+- Full suite: **146 tests, ~2 min, green.**
 - **Both built streets are exact** (exhaustive enumeration), so both are ground
   truth for validating the pre-flop table later.
 - **The 169-class table is built and committed** (`tools/preflop_table.json`,
@@ -39,10 +41,15 @@ a later phase and must not be touched without asking first.
   seeds make the parallel table equal a serial one row for row; the tests
   assert it. Full serial-equivalent cost is ~4h; the remaining 64 classes took
   6.6 min.
-- `preflop.py` is **half built**: the 169-class canonicaliser only. `decide()`
-  is next — lazy table load, lookup, 4x-bet comparison.
-- **Next concrete step:** `decision/preflop.py::decide()`, then the tier-2
-  dense baseline pass, then the F-term probe.
+- `preflop.py` is **finished** (`390da5e`): `decide()` is a lazy, cached
+  dictionary lookup plus the `ev_bet > ev_check` comparison. Of the 169 classes
+  it bets 4x on 83 and checks on 86; only 6 sit inside the baseline's noise
+  (`J6s`, `22`, `K2o`, `T8s`, `J5s`, `Q3s`), which is the tier-2 set.
+- `tools/simulate.py` is **built** (`4436f7e`): plays complete hands through the
+  engine and reports both a realised P/L and a Rao-Blackwellised EV. See "The
+  bankroll simulator" below.
+- **Next concrete step:** the tier-2 dense baseline pass, then the F-term probe.
+  Neither is blocking — the engine decides on every street today.
 
 ## Where the reasoning lives
 
@@ -59,6 +66,154 @@ the code. Read it there; it is not duplicated here.
 | Why `breakeven_win_rate` bisects instead of using a closed form | `ev.py::breakeven_win_rate` docstring |
 | Why `dealer_qualifies` / `breakeven_or_none` live in `ev.py` rather than `river.py` | their docstrings in `ev.py` |
 | Why the flop's check baseline and Blind are fused into one pass | `flop.py::FlopSweep` docstring; cross-checked by `test_the_check_baseline_and_the_blind_come_back_out_of_the_river` |
+
+## The bankroll simulator — `tools/simulate.py` (2026-11-06)
+
+The first code that *spends* the engine's answers. Offline, like the generator;
+nothing in `decision/` imports it. Run it as `python -m tools.simulate` (the
+repo root is only on `sys.path` under `-m` or pytest's `pythonpath = .`).
+
+**Chips from units.** The engine works in ante units; the simulator takes one
+more number, the table's maximum bet — the largest single wager the rules
+allow, which is the 4x pre-flop Play bet — and derives `ante = max_bet / 4`. So
+a 5,000-chip max is a **1,250-chip ante**, a 2,500-chip fold, a 7,500-chip worst
+case, and a 50,000-chip bankroll is **40 antes**. Every figure is reported in
+units as well, because units are what the strategy earns and they do not move
+when the ante does.
+
+**Two estimators, deliberately both reported.** Realised P/L is what a player
+actually wins or loses, but its sd is ~4.2 units/hand, so at any sample size a
+run can afford, its SE is *larger than the edge* — it cannot answer "are we up
+or down" on strategy. The Rao-Blackwellised estimator accumulates the engine's
+own conditional EV per hand instead: sd ~1.4, an order of magnitude tighter for
+the same hands. Report the R-B figure for the edge; report realised P/L for
+what the bankroll did.
+
+**The one approximation: the flop.** Exact `flop.decide` is ~10s, which prices a
+10,000-hand run at 28 hours, so the simulator sweeps `--flop-runouts` sampled
+runouts (default 32 of 1,081) and enumerates all 990 dealer hands exactly inside
+each. Validated against exact on 20 flops: 19/20 verdict agreement, margin delta
+mean +0.0145 sd 0.1163, the single disagreement being a true coin-flip where a
+flip costs nothing.
+
+**The margin is well behaved; `ev_check` is not.** A live royal makes `ev_check`
+heavy-tailed — `Ah Kh` on `Qh 8s 3d` can run out a royal worth ~500 units on one
+runout in 1,081, so at 64 runouts the sample usually misses it and its sd across
+seeds is **3.3**. The royal moves `ev_bet` and `ev_check` *together* (same
+runouts), so the **margin** stays clean: sd 0.064 at 64 runouts, max error 0.127
+over 10 seeds. This is the same tail the notes flagged as `max check_value_se
+0.22` for suited broadways. Anything binding the sampled flop to the exact one
+must assert on the margin, not on `ev_check` — see
+`tests/test_simulate.py::test_the_sampled_flop_agrees_with_the_exact_one`.
+
+**A royal pays 625,000 chips** at a 1,250-chip ante (500:1 on the Blind), which
+dwarfs a 50,000-chip bankroll. Real UTH, not a bug — but it means bankroll
+outcomes are dominated by a rare tail, and that "ruined" says little about the
+strategy. The R-B EV is bankroll-independent by construction.
+
+## Simulation results (2026-11-06)
+
+The headline question was "50k chips, 5k max bet — do we come out up or down,
+and by how much". Answer: **down, by 2.70% ± 0.76% of an ante per hand** — which
+is the published optimal figure for this game, so the engine plays essentially
+as well as the game can be played and the loss is the house edge, not a bug.
+
+| Run | Hands | Bankroll | R-B EV/hand | Realised/hand | Ruin |
+| --- | --- | --- | --- | --- | --- |
+| headline | 10,000 | 50,000 (40 antes) | −0.0440 ± 0.0136 | −0.1449 ± 0.0422 | hand 81 |
+| deep | 5,000 | 1,000,000 (800 antes) | −0.0405 ± 0.0193 | −0.1627 ± 0.0596 | hand 4,990 |
+| pooled | 20,000 | 10 × 50,000 (40 antes) | −0.0132 ± 0.0104 | +0.0036 ± 0.0395 | 8 of 10 |
+
+All use max bet 5,000 (ante 1,250), seed `20261106`, 32 flop runouts.
+
+**The edge is a loss of −2.70% ± 0.76% of an ante per hand** — the
+inverse-variance weighted mean of the three R-B estimates over 35,000 hands
+(χ² = 3.81 on 2 df, so the three agree with their stated SEs). Read any single
+run and you would be misled: the headline alone says −4.4% and the pooled alone
+says −1.3%, but neither is the answer.
+
+**That is the published UTH optimum.** The figure for perfect play is −2.185% of
+the ante; the engine is **0.68σ away** — statistically indistinguishable from
+optimal. The loss is inherent to the game, not to the engine. This supersedes
+the earlier single-run reading of "−4.4%, in the right neighbourhood but not
+matching".
+
+Caveat: all three runs share the same base seed, so their first 2,000 hands are
+the *same* hands (~6% overlap). Not enough to change the conclusion, but they
+are not fully independent, and a clean replication would use disjoint seeds.
+
+**The F term is now measured, not asserted.** `analytic_ev_per_hand()` (the
+table's own claim) is −0.0821; the simulation, which actually *plays* the flop,
+comes in at −0.0270. The gap, **+0.0551 units**, is exactly the weighted average
+of `F̄ = E_flop[max(0, flop.ev_advantage)]` over the classes the table checks —
+the value of the flop bet that `check_value` omits. So the omission is worth
+**~0.055 units/hand**, about 5.5% of an ante, and it is the entire distance
+between the table's −0.0821 and reality. This confirms the mechanism predicted
+in "Pre-flop baseline" above: the table understates checking and bets 4x too
+often.
+
+**Variance dominates everything.** Realised sd is ~**4.2 units/hand** against an
+edge of 0.027 — a signal-to-noise ratio of about **1:156**. A single session's
+realised P/L is therefore almost pure noise: the headline and deep runs both
+realised −0.14 to −0.16, 2σ+ *below* the true edge, and the pooled 20,000 hands
+realised **+0.004** — a *profit* — on a game that loses. This is why the
+simulator reports the Rao-Blackwellised figure as *the* edge and the realised
+figure only as what the bankroll did.
+
+Note the realised sd is not itself stable: 4.21 over 10,000 hands vs 5.59 over
+20,000. That is not a contradiction — the royal flush pays 505 units on one hand
+in ~31,000, so the sample sd is dominated by whether a royal happened to land.
+Treat ~4.2 as indicative only.
+
+**Bankroll sizing — the rule of thumb.** With the corrected μ = 0.027 and
+σ = 4.2, the infinite-horizon diffusion approximation `RoR ≈ exp(−2·|μ|·B/σ²)`
+is **`exp(−B/327)`** for `B` in antes. For finite sessions use the full
+expression (`Φ((−B−μN)/(σ√N)) + exp(−2μB/σ²)·Φ((μN−B)/(σ√N))`):
+
+| Stack | Example | 5,000 hands | 10,000 hands | 20,000 hands |
+| --- | --- | --- | --- | --- |
+| 40 antes | 50,000 chips | 94% | 97% | 99% |
+| 200 antes | 250,000 chips | 65% | 81% | 91% |
+| 400 antes | 500,000 chips | 31% | 57% | 79% |
+| 800 antes | 1,000,000 chips | 2% | 17% | 47% |
+| 1,200 antes | 1,500,000 chips | ~0% | 2% | 20% |
+
+The expected loss over 10,000 hands is **270 antes**, so no stack under ~270
+antes can even cover its own expected loss — which is why the 40-ante table
+above is so brutal.
+
+Measured against it: at 40 antes, **8 of the 10 pooled trials went broke**
+(model: 94–99% over 2,000 hands, so 8–10 was expected), and the headline died at
+hand 81. The deep run went broke at 800 antes over 5,000 hands, which the model
+puts at ~2% — a genuinely unlucky draw, and a reminder that one trial settles
+nothing.
+
+**Practical upshot:** the chip figures are cosmetic; only the stack-to-ante
+ratio matters, and it needs to be in the hundreds. **50k with a 5k max bet is
+unplayable at 40 antes** — not because the strategy is bad but because the bet
+is too large for the stack.
+
+### Reproducing
+
+```bash
+python -m tools.simulate --hands 10000 --trials 1  --bankroll 50000   --max-bet 5000 --seed 20261106
+python -m tools.simulate --hands 5000  --trials 1  --bankroll 1000000 --max-bet 5000 --seed 20261106
+python -m tools.simulate --hands 2000  --trials 10 --bankroll 50000   --max-bet 5000 --seed 20261106
+```
+
+`--json PATH` also dumps per-trial metrics. Note the repo root is only on
+`sys.path` under `-m` (or pytest's `pythonpath = .`), so `python tools/simulate.py`
+fails with `ModuleNotFoundError: No module named 'decision'`.
+
+**Known wart, not yet fixed — and it matters.** `format_report`'s bankroll
+section reports the final bankroll even for a ruined run, and the run
+deliberately continues past ruin, so a broke trial keeps "playing" and the
+number is meaningless. In the headline run it printed a final bankroll of
+−1,761,875; in the pooled run it reported **"profitable trials 7 of 10"** when
+**8 of 10 had actually gone broke**. Any bankroll headline from a ruined run is
+noise. The meaningful figures are `ruin_at` and the R-B edge; the fix is to
+floor the reported bankroll at zero or report the bankroll *at* ruin. **Do not
+quote final-bankroll or "profitable trials" numbers until this is fixed.**
 
 ## Locked decisions (do not re-litigate)
 
@@ -245,11 +400,13 @@ decide(hole, board, table=PAYOUT_TABLE) -> FlopDecision    # .action BET|CHECK
 
 ## Runtime notes
 
-- Full suite: **109 tests, ~50s**, almost entirely `tests/test_flop.py`: every
+- Full suite: **146 tests, ~2 min**, almost entirely `tests/test_flop.py`: every
   `decide()` costs ~8.3s, and `test_the_check_baseline_and_the_blind_come_back_
   out_of_the_river` costs another ~8s re-deriving the same numbers through
   `river.decide`. All of it is computed once in module-scoped fixtures — **do
-  not convert them to per-test calls**, or the suite goes from 50s to minutes.
+  not convert them to per-test calls**, or the suite goes from ~2 min to much
+  longer. `tests/test_simulate.py` follows the same rule for its three exact
+  flops (~30s of the total).
 - `river.decide` is milliseconds; `flop.decide` is ~8.3s; pre-flop is a
   dictionary lookup (zero computation at runtime).
 - The table generator is parallel by default (`--jobs`, one worker per CPU).
@@ -264,20 +421,22 @@ decide(hole, board, table=PAYOUT_TABLE) -> FlopDecision    # .action BET|CHECK
 
 1. ~~`tools/generate_preflop_table.py` + the full table~~ **Done** — committed
    in `24ced31`/`c65eff3`/`ad82766`; see Status above.
-2. `decision/preflop.py::decide()` — **current step**. Canonicalise two hole
-   cards into one of the 169 classes, look up the stored rates, decide bet 4x /
-   check. Needs a **lazy** table load, so that importing `starting_hand_class`
-   from here in the generator does not require the JSON to exist yet. The
-   pre-flop baseline is `check_value`, not −2 (locked decision 1); `B_eff` is
-   the stored win-conditional Blind scalar.
-3. Tier-2 dense baseline pass over the boundary classes — the measured SEs vary
+2. ~~`decision/preflop.py::decide()`~~ **Done** — committed in `390da5e`.
+3. ~~A bankroll simulator over the finished engine~~ **Done** — committed in
+   `4436f7e`; results in "Simulation results" above.
+4. Tier-2 dense baseline pass over the boundary classes — the measured SEs vary
    by class (see "Pre-flop generator and bias probe"), so pick the set from the
-   stored `check_value_se` and confirm the band with the user before running.
-4. Validate `river.py` output against published UTH river strategy charts for a
+   stored `check_value_se`. `decide()` now names the current six: `J6s`, `22`,
+   `K2o`, `T8s`, `J5s`, `Q3s`.
+5. Validate `river.py` output against published UTH river strategy charts for a
    few known hands — still outstanding from the previous session and not yet
    done; the flop is now also exact enough to cross-check the same way.
-5. `tools/measure_flop_bias.py`: warm-up probe, then the boundary classes —
-   see "Pre-flop generator and bias probe" above.
+6. `tools/measure_flop_bias.py`: warm-up probe, then the boundary classes —
+   see "Pre-flop generator and bias probe" above. **Lower priority now:** the
+   simulation has already measured the aggregate `F̄` (0.055 units/hand, see
+   "Simulation results"), so this is only needed for the per-class numbers that
+   would let the *table* be corrected rather than just the EV account for it.
+7. `perception/`, `action/`, `main.py` — not started, out of scope until asked.
 
 Ask before: anything touching `perception/`, `action/` or `main.py`; any sample
 size change; any change to the payout table or the 5-bucket model.
