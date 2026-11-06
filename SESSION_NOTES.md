@@ -1,5 +1,11 @@
 # SESSION_NOTES — Ultimate Texas Hold'em Bot
 
+> **PROJECT CONCLUDED 2026-11-06.** The decision engine is complete, tested and
+> simulated; see [README.md](README.md) for the summary and "Simulation
+> results" below for the numbers. `perception/`, `action/` and `main.py` were
+> deliberately never built and are **not** planned. Nothing here is in flight —
+> the notes are kept as the record of what was measured and why.
+
 Working notes for re-orienting a fresh session on `decision/` without replaying
 chat history. Seeded from section 10 of the build spec on 2026-11-01 and
 maintained by Claude Code from here on.
@@ -7,8 +13,8 @@ maintained by Claude Code from here on.
 **Read this *and* run `git log --oneline --stat -10` and `git status`. Notes
 drift; the repo is the truth.**
 
-Scope: `decision/` and `tools/` only. `perception/`, `action/` and `main.py` are
-a later phase and must not be touched without asking first.
+Scope: `decision/` and `tools/` only. The perception and action layers are out
+of scope permanently.
 
 ## Status as of 2026-11-06
 
@@ -419,6 +425,10 @@ decide(hole, board, table=PAYOUT_TABLE) -> FlopDecision    # .action BET|CHECK
 
 ## Next session steps
 
+**The project is concluded — none of these are planned.** They are recorded so
+that a future session picking this up knows where the loose ends are, in rough
+priority order.
+
 1. ~~`tools/generate_preflop_table.py` + the full table~~ **Done** — committed
    in `24ced31`/`c65eff3`/`ad82766`; see Status above.
 2. ~~`decision/preflop.py::decide()`~~ **Done** — committed in `390da5e`.
@@ -436,7 +446,11 @@ decide(hole, board, table=PAYOUT_TABLE) -> FlopDecision    # .action BET|CHECK
    simulation has already measured the aggregate `F̄` (0.055 units/hand, see
    "Simulation results"), so this is only needed for the per-class numbers that
    would let the *table* be corrected rather than just the EV account for it.
-7. `perception/`, `action/`, `main.py` — not started, out of scope until asked.
+7. `perception/`, `action/`, `main.py` — **not built, not planned.** The project
+   ends at the decision boundary; the README says so.
+8. The `format_report` bankroll wart (see "Known wart" above) — a ~10-line fix,
+   left undone at conclusion.
 
-Ask before: anything touching `perception/`, `action/` or `main.py`; any sample
-size change; any change to the payout table or the 5-bucket model.
+If this is ever revived, ask before: any sample size change, or any change to
+the payout table or the 5-bucket model. Those are the two things every number
+in this file is downstream of.
