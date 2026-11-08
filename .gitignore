@@ -1,6 +1,9 @@
 #Plan file for claude code
 Ultimate Texas Hold'em Bot — Build Spec.md
 
+# Scratch output from simulation runs (regenerable; see site/WEBSITE_SESSION_NOTES.md)
+_simout/
+
 # Python
 __pycache__/
 *.py[cod]

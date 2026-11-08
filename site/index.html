@@ -1,0 +1,737 @@
+<title>The Anti-Hero Hand</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<style>
+/* ============================================================================
+   THE ANTI-HERO HAND  ·  Act I of the Ultimate Texas Hold'em landing page
+   ----------------------------------------------------------------------------
+   LAYOUT  One pinned viewport. The table floats in a dark room; the camera
+           moves through it while the engine's readout assembles beneath.
+   COLOUR  Graphite ground, bone light. The only chroma in the whole hero is
+           the red pip on the 3 of diamonds. The interface stays monochrome
+           on purpose: the deck owns the colour, the engine does not.
+   TYPE    Instrument Serif for the statements, Archivo for the interface,
+           JetBrains Mono for anything the engine computed.
+   ========================================================================= */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+  /* colour */
+  --ground:      #08090a;
+  --ground-2:    #101215;
+  --bone:        #f2f0ea;
+  --ash:         #969ea6;
+  --ash-dim:     rgba(242, 240, 234, .55);
+  --slate:       #2e343b;
+  --hair:        rgba(242, 240, 234, .11);
+  --ice:         #cfe2dc;
+  --card:        #f7f5ef;
+  --card-ink:    #14171b;
+  --card-red:    #c2312c;
+
+  /* type */
+  --display: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+  --ui:      'Archivo', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono:    'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* the card unit: every card dimension derives from this one number */
+  --cw: clamp(42px, min(9.2vw, 11.6vh), 112px);
+
+  color-scheme: dark;
+  background: var(--ground);
+}
+
+html, body { background: var(--ground); }
+body {
+  margin: 0;
+  color: var(--bone);
+  font-family: var(--ui);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.page { position: relative; }
+
+/* ---- atmosphere ---------------------------------------------------------- */
+
+.grain {
+  position: fixed; inset: 0; z-index: 60; pointer-events: none;
+  opacity: .05; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.glow {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(58% 42% at 50% 62%, rgba(207, 226, 220, .075) 0%, rgba(207, 226, 220, 0) 68%),
+    radial-gradient(120% 90% at 50% 40%, rgba(0, 0, 0, 0) 42%, rgba(0, 0, 0, .72) 100%);
+}
+
+/* ---- the pinned hero ----------------------------------------------------- */
+
+.hero { position: relative; }
+
+.pin {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.topbar {
+  position: relative; z-index: 4;
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 16px;
+  padding-top: max(20px, env(safe-area-inset-top, 0px));
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--ash);
+  /* One-shot, not scroll-linked: the page's own name is legible from the first
+     frame and the entrance resolves on its own instead of waiting for a scroll
+     that may never come. */
+  animation: topbar-in .8s cubic-bezier(.22, .61, .36, 1) both;
+}
+.topbar__r { color: var(--ash-dim); }
+
+@keyframes topbar-in {
+  from { opacity: 0; transform: translateY(-7px); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .topbar { animation: none; }
+}
+
+/* ---- copy: five statements sharing one grid cell ------------------------- */
+
+.copy {
+  position: relative; z-index: 4;
+  padding-top: clamp(24px, 5.4vh, 60px);
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+  text-align: center;
+}
+
+.captions { display: grid; }
+
+.caption {
+  grid-area: 1 / 1;
+  display: flex; flex-direction: column; align-items: center;
+  gap: clamp(10px, 1.5vh, 18px);
+  opacity: 0;
+  will-change: opacity, transform, filter;
+}
+.caption.is-resting { opacity: 1; }
+
+.caption h1 {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(33px, 5.6vw, 68px);
+  line-height: 1.03;
+  letter-spacing: -.015em;
+  text-wrap: balance;
+  color: var(--bone);
+}
+.caption h1 em { font-style: italic; }
+.caption h1 .red { font-style: normal; color: var(--card-red); }
+.caption h1 .pip { font-style: normal; }
+
+.caption p {
+  margin: 0;
+  max-width: 44ch;
+  font-size: clamp(13.5px, 1.45vw, 16.5px);
+  line-height: 1.6;
+  color: var(--ash);
+  text-wrap: pretty;
+}
+
+/* ---- the 3D stage -------------------------------------------------------- */
+
+.stage {
+  position: relative; z-index: 2;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+}
+
+.world {
+  width: 100%; height: 100%;
+  display: grid; place-items: center;
+  perspective: 1500px;
+  perspective-origin: 50% 46%;
+}
+
+.camera { transform-style: preserve-3d; display: grid; place-items: center; }
+
+.table {
+  grid-area: 1 / 1;
+  transform-style: preserve-3d;
+  display: flex; flex-direction: column; align-items: center;
+  gap: calc(var(--cw) * .58);
+}
+
+.board, .hand { display: flex; transform-style: preserve-3d; }
+.board { gap: calc(var(--cw) * .12); }
+.hand  { gap: calc(var(--cw) * .17); transform: translateZ(56px); }
+
+/* A cell holds the place a board card will land. The well is that place,
+   drawn flat and still; the card arrives into it and the well dissolves. */
+.cell {
+  position: relative;
+  width: var(--cw);
+  height: calc(var(--cw) * 1.4);
+  transform-style: preserve-3d;
+}
+
+.well {
+  position: absolute; inset: 0;
+  border: 1px solid rgba(242, 240, 234, .20);
+  border-radius: calc(var(--cw) * .1);
+}
+
+.slot { position: relative; transform-style: preserve-3d; will-change: transform, opacity; }
+
+/* ---- the card ------------------------------------------------------------ */
+
+.card {
+  position: relative;
+  width: var(--cw);
+  height: calc(var(--cw) * 1.4);
+  border-radius: calc(var(--cw) * .1);
+  background:
+    linear-gradient(158deg, #fffefa 0%, var(--card) 46%, #e9e4d9 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .95),
+    inset 0 0 0 1px rgba(0, 0, 0, .07),
+    0 2px 3px -1px rgba(0, 0, 0, .5),
+    0 22px 42px -16px rgba(0, 0, 0, .85);
+  color: var(--card-ink);
+  display: grid; place-items: center;
+  will-change: transform;
+}
+.card.is-red { color: var(--card-red); }
+
+.card .idx {
+  position: absolute;
+  display: flex; flex-direction: column; align-items: center;
+  line-height: .92;
+  font-family: var(--ui);
+  font-weight: 600;
+  font-size: calc(var(--cw) * .185);
+  letter-spacing: -.02em;
+}
+.card .idx em { font-style: normal; font-size: calc(var(--cw) * .155); margin-top: calc(var(--cw) * .015); }
+.card .idx--tl { top: calc(var(--cw) * .095); left: calc(var(--cw) * .105); }
+.card .idx--br { bottom: calc(var(--cw) * .095); right: calc(var(--cw) * .105); transform: rotate(180deg); }
+
+.card .face {
+  display: flex; flex-direction: column; align-items: center;
+  line-height: .84;
+  font-family: var(--ui);
+}
+.card .face b {
+  font-weight: 600;
+  font-size: calc(var(--cw) * .52);
+  letter-spacing: -.045em;
+}
+.card .face.is-wide b { font-size: calc(var(--cw) * .42); letter-spacing: -.06em; }
+.card .face em { font-style: normal; font-size: calc(var(--cw) * .27); margin-top: calc(var(--cw) * .04); }
+
+/* ---- the swarm: the outcomes the engine walks ---------------------------- */
+
+.swarm {
+  grid-area: 1 / 1;
+  position: relative;
+  width: 0; height: 0;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+.ghost {
+  position: absolute; left: 0; top: 0;
+  width: calc(var(--cw) * .5);
+  height: calc(var(--cw) * .7);
+  margin-left: calc(var(--cw) * -.25);
+  margin-top: calc(var(--cw) * -.35);
+  border: 1px solid rgba(242, 240, 234, .2);
+  border-radius: 5px;
+}
+
+/* ---- the readout --------------------------------------------------------- */
+
+.readout {
+  position: relative; z-index: 4;
+  padding-bottom: clamp(22px, 4.4vh, 48px);
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+}
+
+.readout__grid {
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+  gap: 10px clamp(14px, 3vw, 38px);
+}
+
+.group { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px clamp(14px, 2.4vw, 30px); }
+
+.rule { width: 1px; height: 20px; background: var(--hair); }
+
+.field { display: flex; align-items: baseline; gap: 8px; white-space: nowrap; }
+.field__k {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+.field__v {
+  font-family: var(--mono);
+  font-size: clamp(12.5px, 1.3vw, 15.5px);
+  font-variant-numeric: tabular-nums;
+  color: var(--bone);
+}
+.field__v--dead { color: var(--ash); }
+.field__v--action {
+  font-size: clamp(14px, 1.7vw, 20px);
+  letter-spacing: .04em;
+  color: var(--ice);
+  text-shadow: 0 0 22px rgba(207, 226, 220, .5);
+}
+
+/* ---- scroll cue ---------------------------------------------------------- */
+
+.cue {
+  position: absolute; z-index: 5;
+  left: 50%; bottom: clamp(2px, 1.2vh, 16px);
+  transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 9px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+.cue__line {
+  width: 1px; height: 34px;
+  background: linear-gradient(to bottom, rgba(242, 240, 234, .5), rgba(242, 240, 234, 0));
+  transform-origin: top;
+  animation: cue 2.4s cubic-bezier(.5, 0, .2, 1) infinite;
+}
+@keyframes cue {
+  0%   { transform: scaleY(0); opacity: 0; }
+  30%  { transform: scaleY(1); opacity: 1; }
+  100% { transform: scaleY(1) translateY(22px); opacity: 0; }
+}
+
+/* ---- the bridge: how one act hands off to the next ----------------------- */
+/* Used at the foot of every act. It carries one line of the argument forward
+   and names what comes next; it never resolves anything.                      */
+
+.bridge {
+  position: relative; z-index: 2;
+  min-height: 78vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: clamp(18px, 3vh, 30px);
+  text-align: center;
+  padding: clamp(72px, 14vh, 150px) max(24px, env(safe-area-inset-left, 0px)) clamp(72px, 14vh, 150px) max(24px, env(safe-area-inset-right, 0px));
+}
+.bridge__eyebrow {
+  margin: 0;
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: .24em; text-transform: uppercase; color: var(--ash);
+}
+.bridge__line {
+  margin: 0; max-width: 42ch;
+  font-family: var(--display); font-weight: 400;
+  font-size: clamp(21px, 2.9vw, 35px);
+  line-height: 1.28;
+  letter-spacing: -.01em;
+  color: var(--bone);
+  text-wrap: balance;
+}
+.bridge__line em { font-style: italic; color: var(--ice); }
+.bridge__next {
+  margin: 0;
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: .24em; text-transform: uppercase; color: var(--slate);
+}
+.bridge__nextname {
+  margin: 0;
+  font-family: var(--display); font-weight: 400;
+  font-size: clamp(19px, 2.4vw, 30px);
+  letter-spacing: -.005em; color: var(--ash);
+}
+
+/* ---- flat mode: no motion, or no GSAP ------------------------------------ */
+/* Everything stacks, nothing is hidden, the page reads as a plain document.  */
+
+.flat .pin { height: auto; overflow: visible; display: block; }
+.flat .topbar { opacity: 1; margin-bottom: 40px; }
+.flat .copy { padding-top: 0; }
+.flat .captions { display: block; }
+.flat .caption {
+  position: static; opacity: 1 !important; filter: none !important; transform: none !important;
+  margin-bottom: clamp(40px, 8vh, 80px);
+}
+.flat .stage { height: min(52vh, 420px); margin: clamp(24px, 6vh, 56px) 0; }
+.flat .swarm { display: none; }
+.flat .cue { display: none; }
+.flat .readout { padding-bottom: 0; }
+.flat .group--verdict .field { opacity: 1 !important; transform: none !important; }
+
+@media (max-width: 560px) {
+  .rule { display: none; }
+  .topbar__r { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cue__line { animation: none; opacity: .5; }
+}
+</style>
+
+<div class="page">
+  <div class="glow" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <section class="hero" id="hero">
+    <div class="pin">
+
+      <header class="topbar">
+        <span>Ultimate Texas Hold'em</span>
+        <span class="topbar__r">Exact decision engine</span>
+      </header>
+
+      <div class="copy">
+        <div class="captions">
+
+          <article class="caption is-resting">
+            <h1>You're holding 2<span class="pip">&#9827;</span> 3<span class="red">&#9670;</span></h1>
+            <p>Offsuit, disconnected, and the lowest win rate of all 169 starting hands &mdash; 29.2%.</p>
+          </article>
+
+          <article class="caption">
+            <h1>The board is a royal flush</h1>
+            <p>A&#9824; K&#9824; Q&#9824; J&#9824; T&#9824;. The best five cards in the game, and you did not make them.</p>
+          </article>
+
+          <article class="caption">
+            <h1>So does the dealer</h1>
+            <p>Every one of the 990 possible dealer hands plays the same royal. You win none of them.</p>
+          </article>
+
+          <article class="caption">
+            <h1>The engine bets</h1>
+            <p>A bet returns the stake. A fold forfeits the ante and the blind. It takes the push.</p>
+          </article>
+
+          <article class="caption">
+            <h1>It was never asked whether you win</h1>
+            <p>It is asked which action loses less. Every street, every hand, 1,070,190 outcomes deep.</p>
+          </article>
+
+        </div>
+      </div>
+
+      <div class="stage" aria-hidden="true">
+        <div class="world">
+          <div class="camera">
+
+            <div class="swarm" data-layer="0"></div>
+            <div class="swarm" data-layer="1"></div>
+            <div class="swarm" data-layer="2"></div>
+
+            <div class="table">
+
+              <div class="board">
+                <div class="cell"><span class="well"></span><div class="slot"><div class="card"><span class="idx idx--tl">A<em>&#9824;</em></span><span class="face"><b>A</b><em>&#9824;</em></span><span class="idx idx--br">A<em>&#9824;</em></span></div></div></div>
+                <div class="cell"><span class="well"></span><div class="slot"><div class="card"><span class="idx idx--tl">K<em>&#9824;</em></span><span class="face"><b>K</b><em>&#9824;</em></span><span class="idx idx--br">K<em>&#9824;</em></span></div></div></div>
+                <div class="cell"><span class="well"></span><div class="slot"><div class="card"><span class="idx idx--tl">Q<em>&#9824;</em></span><span class="face"><b>Q</b><em>&#9824;</em></span><span class="idx idx--br">Q<em>&#9824;</em></span></div></div></div>
+                <div class="cell"><span class="well"></span><div class="slot"><div class="card"><span class="idx idx--tl">J<em>&#9824;</em></span><span class="face"><b>J</b><em>&#9824;</em></span><span class="idx idx--br">J<em>&#9824;</em></span></div></div></div>
+                <div class="cell"><span class="well"></span><div class="slot"><div class="card"><span class="idx idx--tl">10<em>&#9824;</em></span><span class="face is-wide"><b>10</b><em>&#9824;</em></span><span class="idx idx--br">10<em>&#9824;</em></span></div></div></div>
+              </div>
+
+              <div class="hand">
+                <div class="slot"><div class="card"><span class="idx idx--tl">2<em>&#9827;</em></span><span class="face"><b>2</b><em>&#9827;</em></span><span class="idx idx--br">2<em>&#9827;</em></span></div></div>
+                <div class="slot"><div class="card is-red"><span class="idx idx--tl">3<em>&#9670;</em></span><span class="face"><b>3</b><em>&#9670;</em></span><span class="idx idx--br">3<em>&#9670;</em></span></div></div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="cue">
+          <span>Scroll</span>
+          <span class="cue__line"></span>
+        </div>
+      </div>
+
+      <div class="readout">
+        <div class="readout__grid">
+
+          <div class="group">
+            <div class="field" data-field="hands">
+              <span class="field__k">Dealer hands</span>
+              <span class="field__v" data-val="hands">&mdash;</span>
+            </div>
+            <div class="field" data-field="wins">
+              <span class="field__k">Wins</span>
+              <span class="field__v" data-val="wins">&mdash;</span>
+            </div>
+            <div class="field" data-field="equity">
+              <span class="field__k">Equity</span>
+              <span class="field__v" data-val="equity">&mdash;</span>
+            </div>
+          </div>
+
+          <div class="rule" aria-hidden="true"></div>
+
+          <div class="group group--verdict">
+            <div class="field" data-field="action">
+              <span class="field__k">Action</span>
+              <span class="field__v field__v--action" data-val="action">&mdash;</span>
+            </div>
+            <div class="field" data-field="evbet">
+              <span class="field__k">EV bet</span>
+              <span class="field__v" data-val="evbet">+0.0000</span>
+            </div>
+            <div class="field" data-field="evfold">
+              <span class="field__k">EV fold</span>
+              <span class="field__v field__v--dead" data-val="evfold">&minus;2.0000</span>
+            </div>
+            <div class="field" data-field="margin">
+              <span class="field__k">Margin</span>
+              <span class="field__v" data-val="margin">+2.0000</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="bridge">
+    <p class="bridge__eyebrow">Act I</p>
+    <p class="bridge__line">The engine did not guess. It enumerated all <em>990</em> dealer holdings, counted them, and read the answer off the total.</p>
+    <p class="bridge__next">Act II</p>
+    <p class="bridge__nextname">The Cost Of Not Guessing</p>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
+
+<script>
+(function () {
+  'use strict';
+
+  // Fall back to a stacked, still, complete page. It carries the real answer,
+  // so the readout is never left showing placeholders.
+  var ANSWER = { hands: '990', wins: '0', equity: '0.0000%', action: 'BET' };
+
+  function bail() {
+    if (window.ScrollTrigger) {
+      window.ScrollTrigger.getAll().forEach(function (t) { t.kill(); });
+    }
+    document.documentElement.classList.add('flat');
+    Object.keys(ANSWER).forEach(function (k) {
+      var el = document.querySelector('[data-val="' + k + '"]');
+      if (el) { el.textContent = ANSWER[k]; }
+    });
+  }
+
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // No GSAP, or the viewer asked for less motion: stack the page and stop.
+  if (!window.gsap || !window.ScrollTrigger || reduce) { bail(); return; }
+
+  // If anything below throws, the page still reads.
+  window.addEventListener('error', bail);
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // ---- smooth scroll ------------------------------------------------------
+  if (window.Lenis) {
+    var lenis = new window.Lenis({
+      duration: 1.15,
+      easing: function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+      smoothWheel: true,
+      wheelMultiplier: 1,
+      touchMultiplier: 1.6
+    });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
+    gsap.ticker.lagSmoothing(0);
+  }
+
+  // ---- the swarm: 1,070,190 outcomes, three parallax depths ---------------
+  // ``z`` is bounded well short of the camera's perspective distance (1500px).
+  // A ghost pushed to z >= 1500 projects through the lens, and the scale
+  // 1500/(1500-z) flips sign -- one stray ghost fills the screen. Keep the
+  // nearest layer under ~600 so nothing ever crosses.
+  var LAYERS = [
+    { count: 26, spread: [820, 500],  z: [560, 160],     opacity: .40 },
+    { count: 30, spread: [1150, 660], z: [-300, -1500],  opacity: .30 },
+    { count: 32, spread: [1500, 860], z: [-1600, -3200], opacity: .18 }
+  ];
+  var swarms = gsap.utils.toArray('.swarm');
+
+  swarms.forEach(function (layer, i) {
+    var cfg = LAYERS[i];
+    for (var n = 0; n < cfg.count; n++) {
+      var g = document.createElement('span');
+      g.className = 'ghost';
+      var x = (Math.random() * 2 - 1) * cfg.spread[0];
+      var y = (Math.random() * 2 - 1) * cfg.spread[1];
+      var z = cfg.z[0] + Math.random() * (cfg.z[1] - cfg.z[0]);
+      g.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,' + z.toFixed(1) + 'px)';
+      layer.appendChild(g);
+    }
+    gsap.set(layer, { opacity: 0 });
+  });
+
+  // ---- elements -----------------------------------------------------------
+  var captions    = gsap.utils.toArray('.caption');
+  var boardSlot   = gsap.utils.toArray('.board .slot');
+  var boardCard   = gsap.utils.toArray('.board .card');
+  var wells       = gsap.utils.toArray('.well');
+  var verdictRule = document.querySelector('.readout__grid > .rule');
+  var vals = {};
+  gsap.utils.toArray('[data-val]').forEach(function (el) { vals[el.dataset.val] = el; });
+  var verdictFields = gsap.utils.toArray('.group--verdict .field');
+
+  var DASH = '—';
+  // Proxy objects drive the readout. Nothing animates an element's textContent
+  // directly, so every value reverts cleanly when the viewer scrolls back up.
+  var counter = { hands: 0 };
+  var reveal  = { wins: 0, equity: 0, action: 0 };
+  var started = false;
+
+  // ---- resting state ------------------------------------------------------
+  // The first frame is the whole composition: two cards in hand, five places
+  // set on the board, the readout booted and waiting. Nothing is hidden from
+  // a reader who never scrolls.
+  gsap.set(boardSlot, { yPercent: 40, z: -300 });
+  gsap.set(boardCard, { rotateX: -82, opacity: 0, transformOrigin: '50% 94%' });
+  gsap.set(verdictFields, { opacity: 0, y: 8 });
+  gsap.set(verdictRule, { opacity: 0 });
+  gsap.set(captions.slice(1), { opacity: 0, y: 22, filter: 'blur(9px)' });
+
+  // The hand is the subject of the first frame; the board is a whisper -- five
+  // places held, nothing in them yet. Held up and close while it is the only
+  // thing on screen, then set back down onto the table as the board arrives.
+  // Both are also lifted clear of the bottom of the stage, where the scroll cue
+  // and the readout sit.
+  gsap.set('.hand',  { scale: 1.5, yPercent: -26 });
+  gsap.set('.board', { scale: .7, opacity: .85, yPercent: -22 });
+
+  // ---- the scroll timeline ------------------------------------------------
+  // 100 units of timeline, mapped across the pinned scroll. Each number below
+  // is an absolute position in that timeline.
+  var tl = gsap.timeline({
+    defaults: { ease: 'none' },
+    scrollTrigger: {
+      trigger: '#hero',
+      start: 'top top',
+      end: function () { return '+=' + Math.round(window.innerHeight * 5.4); },
+      pin: '.pin',
+      scrub: 1.1,
+      anticipatePin: 1,
+      invalidateOnRefresh: true
+    }
+  });
+
+  function swap(out, in_, at) {
+    if (out) {
+      tl.to(out, { opacity: 0, y: -20, filter: 'blur(9px)', duration: 3.2, ease: 'power2.in' }, at);
+    }
+    tl.to(in_, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 4.4, ease: 'power2.out' }, at + 1.4);
+  }
+
+  // ACT 0 · the room
+  tl.fromTo(captions[0], { y: 12 }, { y: 0, duration: 6, ease: 'power2.out' }, 0)
+    .to('.cue', { opacity: 0, duration: 3 }, 2);
+
+  // ACT 1 · the board arrives, each card settling into the place held for it
+  swap(captions[0], captions[1], 10);
+  tl.to(boardSlot, { yPercent: 0, z: 0, duration: 11, stagger: 3.1, ease: 'power3.out' }, 12)
+    .to(boardCard, { rotateX: 0, opacity: 1, duration: 8, stagger: 3.1, ease: 'power2.out' }, 13.4)
+    .to(wells, { opacity: 0, duration: 3, stagger: 3.1 }, 15)
+    .to('.board', { scale: 1, opacity: 1, yPercent: 0, duration: 11, ease: 'power2.out' }, 12)
+    .to('.hand', { scale: 1, yPercent: 0, duration: 13, ease: 'power2.inOut' }, 12)
+    .to('.table', { y: -14, duration: 13 }, 12);
+
+  // ACT 2 · the enumeration
+  swap(captions[1], captions[2], 30);
+  tl.to('.swarm', { opacity: 1, duration: 8 }, 32)
+    .to('.table', { y: 6, scale: .9, duration: 16, ease: 'power2.inOut' }, 32)
+    .to(counter, {
+      hands: 990, duration: 15, ease: 'power2.inOut',
+      onUpdate: function () {
+        if (counter.hands > 0) { started = true; }
+        vals.hands.textContent = started ? Math.round(counter.hands) : DASH;
+      },
+      onReverseComplete: function () { started = false; vals.hands.textContent = DASH; }
+    }, 33)
+    .to(reveal, {
+      wins: 1, duration: 2,
+      onUpdate: function () { vals.wins.textContent = reveal.wins > .5 ? '0' : DASH; },
+      onReverseComplete: function () { vals.wins.textContent = DASH; }
+    }, 47)
+    .to(reveal, {
+      equity: 1, duration: 2,
+      onUpdate: function () { vals.equity.textContent = reveal.equity > .5 ? '0.0000%' : DASH; },
+      onReverseComplete: function () { vals.equity.textContent = DASH; }
+    }, 48.5);
+
+  // ACT 3 · the verdict
+  swap(captions[2], captions[3], 50);
+  tl.to('.table', { scale: 1, y: -6, duration: 10, ease: 'power2.out' }, 52)
+    .to(verdictRule, { opacity: 1, duration: 3 }, 53.5)
+    .to(verdictFields, { opacity: 1, y: 0, duration: 4, stagger: 1.6, ease: 'power2.out' }, 54)
+    .fromTo(vals.action, { opacity: 0, scale: 1.5 }, { opacity: 1, scale: 1, duration: 3, ease: 'power4.out' }, 55)
+    .to(reveal, {
+      action: 1, duration: 2,
+      onUpdate: function () { vals.action.textContent = reveal.action > .08 ? 'BET' : DASH; },
+      onReverseComplete: function () { vals.action.textContent = DASH; }
+    }, 55)
+    .to('.camera', { keyframes: [{ scale: 1.016, duration: 1.2 }, { scale: 1, duration: 2.4 }] }, 56);
+
+  // ACT 4 · pull back through every outcome
+  swap(captions[3], captions[4], 66);
+  tl.to('.table', { y: 26, scale: .34, duration: 30, ease: 'power2.in' }, 70)
+    .to('.table', { opacity: 0, duration: 12 }, 84)
+    // Negative z: the outcomes recede into the dark as the camera draws back.
+    // Pushing them forward would drive the near layers through the lens.
+    .to(swarms[0], { z: -700,  duration: 30, ease: 'power1.in' }, 70)
+    .to(swarms[1], { z: -1200, duration: 30, ease: 'power1.in' }, 70)
+    .to(swarms[2], { z: -1400, duration: 30, ease: 'power1.in' }, 70)
+    .to('.swarm', { opacity: 0, duration: 14 }, 86);
+
+  // ---- idle life: the cards breathe when the viewer is not scrolling ------
+  gsap.utils.toArray('.card').forEach(function (card, i) {
+    gsap.to(card, {
+      y: (i % 2 ? -1 : 1) * 5,
+      rotateZ: (i % 3 - 1) * .5,
+      duration: 4.5 + (i % 4) * .6,
+      ease: 'sine.inOut',
+      repeat: -1,
+      yoyo: true,
+      delay: i * .25
+    });
+  });
+
+  // Webfonts change the copy's height, which moves the pin. Re-measure once.
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function () { ScrollTrigger.refresh(); });
+  }
+})();
+</script>
