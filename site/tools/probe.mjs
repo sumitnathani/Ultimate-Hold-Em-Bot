@@ -183,6 +183,39 @@ const MEASURE = `(() => {
     };
   });
 
+  // Act V: the forest plot. The bars are absolutely positioned from inline
+  // --l/--w/--at percentages, so the thing most likely to be wrong is the
+  // geometry itself. offsetLeft/offsetWidth are used for the same reason the
+  // rail uses offsetHeight -- a pending scaleX(0) reveal would read as zero
+  // width through getBoundingClientRect and hide a real bug.
+  out.forest = [...document.querySelectorAll('.forest__row')].map((row) => {
+    const plot = row.querySelector('.forest__plot');
+    const ci = row.querySelector('.forest__ci');
+    const dot = row.querySelector('.forest__dot');
+    const p = plot.getBoundingClientRect();
+    const pct = (x) => (p.width ? +(((x - p.left) / p.width) * 100).toFixed(2) : null);
+    return {
+      name: row.querySelector('.forest__name')?.textContent.trim() || null,
+      val: row.querySelector('.forest__val')?.textContent.replace(/\\s+/g, ' ').trim() || null,
+      total: row.classList.contains('forest__row--total'),
+      ciLeftPct: pct(p.left + ci.offsetLeft),
+      ciWidthPct: p.width ? +((ci.offsetWidth / p.width) * 100).toFixed(2) : null,
+      dotPct: pct(dot.getBoundingClientRect().left + dot.getBoundingClientRect().width / 2),
+      ciPx: Math.round(ci.getBoundingClientRect().width),
+      dotPx: Math.round(dot.getBoundingClientRect().width),
+    };
+  });
+
+  const axis = document.querySelector('.forest__axis');
+  out.axis = axis ? (() => {
+    const p = axis.querySelector('.forest__plot').getBoundingClientRect();
+    const at = (el) => {
+      const r = el.getBoundingClientRect();
+      return { text: el.textContent.trim(), pct: p.width ? +(((r.left + r.width / 2 - p.left) / p.width) * 100).toFixed(2) : null };
+    };
+    return [...axis.querySelectorAll('.forest__reftag, .forest__tick')].map(at);
+  })() : null;
+
   // Sample of the text the page actually renders, for copy checks.
   out.asideStats = [...document.querySelectorAll('.aside__stat')]
     .map((d) => d.querySelector('dt').textContent.trim() + ': ' + d.querySelector('dd').textContent.trim());
@@ -225,10 +258,20 @@ const MEASURE = `(() => {
     rungRule: op('.rung__rule'),
     rungBody: op('.rung__body'),
     rungBar: op('.rung__bar i'),
+    forestCi: op('.forest__ci'),
+    forestDot: op('.forest__dot'),
+    forestNote: op('.forest__note'),
+    verdictLine: op('.verdict__line'),
+    verdictSub: op('.verdict__sub'),
+    coda: op('.coda__inner'),
     boardCard: op('.board .card'),
     caption1: op('.captions .caption:nth-child(1)'),
     caption5: op('.captions .caption:nth-child(5)'),
   };
+  out.forestCiTransform = (() => {
+    const el = document.querySelector('.forest__ci');
+    return el ? getComputedStyle(el).transform : null;
+  })();
   out.rungRuleTransform = (() => {
     const el = document.querySelector('.rung__rule');
     return el ? getComputedStyle(el).transform : null;

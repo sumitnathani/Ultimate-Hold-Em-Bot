@@ -276,6 +276,66 @@ def check_table() -> None:
     assert n_bet == 83
 
 
+def check_forest() -> None:
+    rule("ACT V -- THE RESULT (four estimates of one edge)")
+
+    # % of the ante lost per hand, as recorded in the root SESSION_NOTES.md.
+    # name, hands, estimate, se
+    RUNS = [
+        ("Headline run", 10_000, -0.0440, 0.0136),
+        ("Deep run", 5_000, -0.0405, 0.0193),
+        ("Pooled runs", 20_000, -0.0132, 0.0104),
+    ]
+    PUBLISHED_OPTIMUM = -0.02185
+
+    # Inverse-variance weighted mean of the three -- the page's headline number.
+    w = [1 / se**2 for _, _, _, se in RUNS]
+    mu = sum(wi * e for wi, (_, _, e, _) in zip(w, RUNS)) / sum(w)
+    se = (1 / sum(w)) ** 0.5
+    chi2 = sum(wi * (e - mu) ** 2 for wi, (_, _, e, _) in zip(w, RUNS))
+
+    print(f"  {'run':14s} {'hands':>7s} {'estimate':>10s} {'se':>7s}  "
+          f"{'95% interval':>20s}")
+    for name, hands, e, s in RUNS:
+        print(f"  {name:14s} {hands:>7,d} {e:>+10.4f} {s:>7.4f}  "
+              f"{e - 1.96 * s:>+9.4f} to {e + 1.96 * s:>+8.4f}")
+    print(f"  {'ALL POOLED':14s} {35_000:>7,d} {mu:>+10.4f} {se:>7.4f}  "
+          f"{mu - 1.96 * se:>+9.4f} to {mu + 1.96 * se:>+8.4f}")
+
+    print(f"\n  published optimum {PUBLISHED_OPTIMUM:+.4f}  "
+          f"(the page prints -2.185%)")
+    gap = abs(mu - PUBLISHED_OPTIMUM) / se
+    print(f"  gap              {gap:.2f} sigma   (page: 0.68)")
+    print(f"  chi2             {chi2:.2f} on 2 df   (the three runs agree)")
+    assert abs(mu + 0.0270) < 5e-5, f"weighted mean moved: {mu:+.5f}"
+    assert abs(se - 0.0076) < 5e-5, f"weighted se moved: {se:.5f}"
+    assert abs(gap - 0.68) < 0.01, f"gap moved: {gap:.3f} sigma"
+    assert chi2 < 5.99, f"the three runs no longer agree: chi2 = {chi2:.2f}"
+
+    # The figure's geometry. The axis runs +1% at the right (a profit) to -8% at
+    # the left, so the zero line -- break-even -- is inside the plot and the
+    # pooled interval's reach into profit is visible rather than clipped. The
+    # page hard-codes these as --l, --w and --at, and they have to follow from
+    # the numbers above.
+    LO, HI = -0.08, 0.01
+    def x(v: float) -> float:
+        return round((v - LO) / (HI - LO) * 100, 2)
+
+    print(f"\n  figure geometry, axis {LO:.1%} (left) to {HI:+.1%} (right):")
+    print(f"    break-even (zero)  --zero:{x(0.0)}")
+    print(f"    published optimum  --ref:{x(PUBLISHED_OPTIMUM)}")
+    for name, _, e, s in RUNS:
+        lo, hi = e - 1.96 * s, e + 1.96 * s
+        print(f"    {name:14s} --l:{x(lo):<6} --w:{round(x(hi) - x(lo), 2):<6} --at:{x(e)}")
+    lo, hi = mu - 1.96 * se, mu + 1.96 * se
+    print(f"    {'ALL POOLED':14s} --l:{x(lo):<6} --w:{round(x(hi) - x(lo), 2):<6} --at:{x(mu)}")
+
+    ticks = "  ".join(f"{int(round(v * 100))}% at {x(v)}"
+                      for v in (0.0, -0.02, -0.04, -0.06))
+    print(f"    axis ticks: {ticks}")
+    assert x(-0.0783) > 0 and x(0.0072) < 100, "an interval falls off the axis"
+
+
 def check_simulation(out_dir: Path | None) -> None:
     rule("ACT IV/V -- THE SIMULATION")
     print("  Canonical figures (root SESSION_NOTES.md, 35,000 hands, seed 20261106):")
@@ -311,6 +371,7 @@ def main() -> int:
     check_anti_hero()
     check_ladder()
     check_table()
+    check_forest()
     check_simulation(args.sim)
     if args.flop:
         check_flop()

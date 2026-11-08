@@ -825,6 +825,229 @@ body {
   }
 }
 
+/* ============================================================================
+   THE RESULT  ·  Act V, and the coda
+   ----------------------------------------------------------------------------
+   Four estimates of the same edge, each with the interval it was measured to.
+   The point of the figure is the last row: three runs disagree with each other,
+   and only the pooled estimate is tight enough to touch the published optimum.
+   A reader who takes any single row away has taken away the wrong thing, which
+   is what the whole page has been about.
+
+   The axis runs +1% at the right to -8% at the left, so the zero line sits
+   inside the plot: the engine's interval is nowhere near break-even, and the
+   pooled run's reaches into profit. Both facts are worth seeing.
+   ========================================================================= */
+
+.forest { --ref: 64.61; --zero: 88.89; margin: clamp(44px, 6.5vh, 78px) 0 0; }
+
+.forest__legend {
+  margin: 0 0 clamp(18px, 2.6vh, 28px);
+  font-family: var(--mono); font-size: 9.5px;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--slate);
+}
+
+.forest__row, .forest__axis {
+  display: grid;
+  grid-template-columns: minmax(0, 8.5rem) minmax(0, 1fr) minmax(0, 7.5rem);
+  grid-template-areas: "name plot val";
+  align-items: center;
+  column-gap: clamp(12px, 2vw, 26px);
+}
+.forest__row {
+  padding: clamp(9px, 1.2vh, 13px) 0;
+  border-bottom: 1px solid var(--hair);
+}
+.forest__row:first-child { border-top: 1px solid var(--hair); }
+.forest__row--total { border-bottom-color: rgba(242, 240, 234, .22); }
+
+.forest__name {
+  grid-area: name;
+  font-family: var(--ui); font-size: clamp(12px, 1.3vw, 14px);
+  letter-spacing: .01em; color: var(--ash); white-space: nowrap;
+}
+.forest__row--total .forest__name { color: var(--bone); }
+
+.forest__plot { grid-area: plot; position: relative; display: block; height: 22px; }
+
+/* Two vertical rules, and they mean different things: break-even is where the
+   game stops costing you, the published optimum is where it stops costing you
+   less. The engine sits on the second one. */
+.forest__plot::before {
+  content: ""; position: absolute; top: -4px; bottom: -4px;
+  left: calc(var(--ref) * 1%); width: 1px;
+  background: rgba(242, 240, 234, .22);
+}
+.forest__plot::after {
+  content: ""; position: absolute; top: -4px; bottom: -4px;
+  left: calc(var(--zero) * 1%); width: 1px;
+  background: rgba(242, 240, 234, .34);
+}
+
+/* The interval grows out of its own estimate rather than from an edge, so the
+   uncertainty appears to spread from the number it belongs to. */
+.forest__ci {
+  position: absolute; top: 10px; height: 1px;
+  left: calc(var(--l) * 1%); width: calc(var(--w) * 1%);
+  background: rgba(242, 240, 234, .34);
+  transform-origin: calc((var(--at) - var(--l)) / var(--w) * 100%) center;
+}
+.forest__ci::before, .forest__ci::after {
+  content: ""; position: absolute; top: -3px; width: 1px; height: 7px;
+  background: rgba(242, 240, 234, .34);
+}
+.forest__ci::before { left: 0; }
+.forest__ci::after  { right: 0; }
+
+.forest__dot {
+  position: absolute; top: 5px; left: calc(var(--at) * 1%);
+  width: 11px; height: 11px; margin-left: -5.5px;
+  border-radius: 50%;
+  background: var(--ash);
+  box-shadow: 0 0 0 2px var(--ground);
+}
+.forest__row--total .forest__ci { background: var(--ice); }
+.forest__row--total .forest__ci::before,
+.forest__row--total .forest__ci::after { background: var(--ice); }
+.forest__row--total .forest__dot { background: var(--ice); }
+
+/* The estimate and its sample size, stacked: the act is about how precision is
+   bought with hands, so the two numbers belong in one column. */
+.forest__val {
+  grid-area: val; justify-self: end; text-align: right;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
+  font-family: var(--mono); white-space: nowrap;
+}
+.forest__val b {
+  font-weight: 500; font-variant-numeric: tabular-nums;
+  font-size: clamp(11.5px, 1.25vw, 13.5px);
+  letter-spacing: .02em; color: var(--bone);
+}
+.forest__val em {
+  font-style: normal; font-size: 9px;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--slate);
+}
+.forest__row--total .forest__val b { color: var(--ice); }
+.forest__row--total .forest__val em { color: var(--ash); }
+
+.forest__axis { padding-top: clamp(10px, 1.4vh, 16px); }
+.forest__axis .forest__plot { height: 40px; }
+.forest__axis .forest__plot::before,
+.forest__axis .forest__plot::after { top: 18px; bottom: auto; height: 6px; }
+.forest__tick {
+  position: absolute; top: 26px; left: calc(var(--at) * 1%);
+  transform: translateX(-50%);
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: .08em; color: var(--slate);
+}
+.forest__reftag {
+  position: absolute; top: 0; left: calc(var(--ref) * 1%);
+  transform: translateX(-50%);
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: .08em; color: var(--ash); white-space: nowrap;
+}
+.forest__note {
+  margin: clamp(20px, 2.8vh, 32px) 0 0; max-width: 62ch;
+  font-size: clamp(12.5px, 1.35vw, 14.5px);
+  line-height: 1.6; color: var(--ash); text-wrap: pretty;
+}
+.forest__note strong { color: var(--bone); font-weight: 500; }
+.forest__note em { font-style: italic; color: var(--bone); }
+
+@media (max-width: 700px) {
+  .forest__row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "name val" "plot plot";
+    row-gap: clamp(7px, 1.2vh, 11px);
+  }
+  .forest__axis {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "plot";
+  }
+  /* The axis has no name or value of its own; leaving them in a one-column
+     grid would place them in implicit rows. */
+  .forest__axis .forest__name,
+  .forest__axis .forest__val { display: none; }
+}
+
+/* ---- the closing statement: the last thing that moves, and barely --------- */
+
+.verdict {
+  margin: clamp(56px, 9vh, 112px) 0 0;
+  border-top: 1px solid var(--hair);
+  padding-top: clamp(34px, 5.5vh, 66px);
+}
+.verdict__line {
+  margin: 0 0 clamp(20px, 3vh, 34px);
+  max-width: 15ch;
+  font-family: var(--display); font-weight: 400;
+  font-size: clamp(36px, 6.4vw, 84px);
+  line-height: .98; letter-spacing: -.03em;
+  color: var(--bone); text-wrap: balance;
+}
+.verdict__sub {
+  margin: 0; max-width: 62ch;
+  font-size: clamp(15px, 1.65vw, 18.5px);
+  line-height: 1.64; color: var(--ash); text-wrap: pretty;
+}
+.verdict__sub em { font-style: italic; color: var(--ice); }
+.verdict__sub strong { color: var(--bone); font-weight: 500; }
+
+/* ---- the coda: the destination, quiet, last ------------------------------ */
+
+.coda {
+  position: relative; z-index: 2;
+  padding:
+    clamp(64px, 10vh, 130px)
+    max(24px, env(safe-area-inset-right, 0px))
+    clamp(72px, 11vh, 140px)
+    max(24px, env(safe-area-inset-left, 0px));
+  text-align: center;
+}
+.coda__inner { max-width: 720px; margin: 0 auto; }
+.coda__eyebrow {
+  margin: 0 0 clamp(18px, 2.6vh, 28px);
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: .24em; text-transform: uppercase; color: var(--ash);
+}
+.coda__line {
+  margin: 0 auto clamp(34px, 5vh, 54px); max-width: 44ch;
+  font-family: var(--display); font-weight: 400;
+  font-size: clamp(22px, 2.9vw, 36px);
+  line-height: 1.24; letter-spacing: -.012em;
+  color: var(--bone); text-wrap: balance;
+}
+.coda__link {
+  display: inline-flex; align-items: baseline;
+  gap: clamp(12px, 1.8vw, 20px); flex-wrap: wrap;
+  justify-content: center;
+  max-width: 100%;
+  padding: clamp(16px, 2.2vh, 22px) clamp(22px, 3vw, 34px);
+  border: 1px solid var(--hair);
+  text-decoration: none;
+  transition: border-color .35s ease, background-color .35s ease;
+}
+.coda__link:hover, .coda__link:focus-visible {
+  border-color: rgba(207, 226, 220, .45);
+  background: rgba(207, 226, 220, .04);
+  outline: none;
+}
+.coda__repo {
+  min-width: 0;
+  font-family: var(--mono); font-size: clamp(12px, 1.35vw, 14.5px);
+  letter-spacing: .04em; color: var(--bone);
+  overflow-wrap: anywhere;
+}
+.coda__go {
+  font-family: var(--ui); font-size: clamp(12px, 1.35vw, 14.5px);
+  letter-spacing: .02em; color: var(--ice);
+}
+.coda__meta {
+  margin: clamp(26px, 4vh, 40px) 0 0;
+  font-family: var(--mono); font-size: 9.5px;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--slate);
+}
+
 @media (max-width: 620px) {
   .ledger__row {
     grid-template-columns: 2.2rem minmax(0, 1fr);
@@ -871,7 +1094,14 @@ body {
 .flat .rail i,
 .flat .figure-tile,
 .flat .ruin__row,
-.flat .ruin__fill { opacity: 1 !important; transform: none !important; }
+.flat .ruin__fill,
+.flat .forest__row,
+.flat .forest__axis,
+.flat .forest__ci,
+.flat .forest__dot,
+.flat .forest__note,
+.flat .verdict,
+.flat .coda__inner { opacity: 1 !important; transform: none !important; }
 
 @media (max-width: 560px) {
   .rule { display: none; }
@@ -1359,8 +1589,107 @@ body {
 
       <p class="ruin__cap">Ruin over 10,000 hands, from the diffusion model at &mu;&thinsp;=&thinsp;0.027 and &sigma;&thinsp;=&thinsp;4.2 &mdash; the same two numbers the rail above is built from. The stack has to be in the hundreds of antes before survival is the likely outcome, and a 5,000-chip maximum bet against a 50,000-chip stack is nowhere near it.</p>
 
+      <aside class="aside">
+        <p class="aside__eyebrow">What the tool said</p>
+        <p class="aside__body">The simulator keeps playing past zero on purpose &mdash; truncating a run at ruin would drop exactly the worst hands out of the sample. The cost is that a broke bankroll's closing figure means nothing, and the summary line <strong>prints it anyway</strong>: the run above once closed with <em>&ldquo;profitable trials 7 of 10&rdquo;</em> when <strong>8 of the 10 bankrolls had gone broke</strong>. That bug is still unfixed. It is in the README, listed beside the other two, and it is why the paragraph above quotes the ruin hand and the Rao-Blackwellised estimate rather than the bankroll line.</p>
+      </aside>
+
     </div>
   </section>
+
+  <section class="bridge">
+    <p class="bridge__eyebrow">Act IV</p>
+    <p class="bridge__line">Three runs, thirty-five thousand hands, and one number that not one of them could produce alone.</p>
+    <p class="bridge__next">Act V</p>
+    <p class="bridge__nextname">The Verdict</p>
+  </section>
+
+  <section class="act" id="act-v">
+    <div class="act__inner">
+
+      <header class="act__head">
+        <p class="act__eyebrow">Act V</p>
+        <h2 class="act__title">The Verdict</h2>
+        <p class="act__lede">Four estimates of one quantity &mdash; how much this engine loses per hand &mdash; each measured to a different precision. They disagree with each other by more than the thing being measured, which is the honest state of the evidence and the reason the page has one more figure to show.</p>
+      </header>
+
+      <!-- The form is the argument: four intervals for one number, and only the
+           last is tight enough to say anything. Geometry is computed and
+           asserted in verify_claims.py::check_forest -- the --l/--w/--at values
+           here are outputs of that function, not eyeballed. -->
+      <div class="forest">
+        <p class="forest__legend">Loss per hand, % of the ante &middot; bars are 95% intervals</p>
+
+        <div class="forest__row">
+          <span class="forest__name">Headline run</span>
+          <span class="forest__plot">
+            <i class="forest__ci" style="--l:10.38; --w:59.24; --at:40.0"></i>
+            <i class="forest__dot" style="--at:40.0"></i>
+          </span>
+          <span class="forest__val"><b>&minus;4.40%</b><em>10,000 hands</em></span>
+        </div>
+
+        <div class="forest__row">
+          <span class="forest__name">Deep run</span>
+          <span class="forest__plot">
+            <i class="forest__ci" style="--l:1.86; --w:84.06; --at:43.89"></i>
+            <i class="forest__dot" style="--at:43.89"></i>
+          </span>
+          <span class="forest__val"><b>&minus;4.05%</b><em>5,000 hands</em></span>
+        </div>
+
+        <div class="forest__row">
+          <span class="forest__name">Pooled runs</span>
+          <span class="forest__plot">
+            <i class="forest__ci" style="--l:51.57; --w:45.3; --at:74.22"></i>
+            <i class="forest__dot" style="--at:74.22"></i>
+          </span>
+          <span class="forest__val"><b>&minus;1.32%</b><em>20,000 hands</em></span>
+        </div>
+
+        <div class="forest__row forest__row--total">
+          <span class="forest__name">Weighted</span>
+          <span class="forest__plot">
+            <i class="forest__ci" style="--l:42.31; --w:33.08; --at:58.85"></i>
+            <i class="forest__dot" style="--at:58.85"></i>
+          </span>
+          <span class="forest__val"><b>&minus;2.70%</b><em>35,000 hands</em></span>
+        </div>
+
+        <div class="forest__axis" aria-hidden="true">
+          <span class="forest__name"></span>
+          <span class="forest__plot">
+            <span class="forest__reftag">published optimum &minus;2.185%</span>
+            <span class="forest__tick" style="--at:88.89">0</span>
+            <span class="forest__tick" style="--at:66.67">&minus;2</span>
+            <span class="forest__tick" style="--at:44.44">&minus;4</span>
+            <span class="forest__tick" style="--at:22.22">&minus;6</span>
+          </span>
+          <span class="forest__val"></span>
+        </div>
+      </div>
+
+      <p class="forest__note">The four rows are the same engine playing the same game, and no two of them agree. The 10,000-hand run lost four and a half times the true edge; the 20,000-hand run <strong>made money</strong>. Weighted by the inverse of each run's own variance, they collapse to a single estimate with an interval narrow enough to be worth something &mdash; and that interval lands <strong>0.68 standard errors</strong> from the published optimum of &minus;2.185%. That is a statement about how tightly the engine has been <em>measured</em>, not about how well it plays. Both halves of it are true, and the page has no interest in only the flattering one.</p>
+
+      <div class="verdict">
+        <p class="verdict__line">It does not beat the house.</p>
+        <p class="verdict__sub">Nothing does. Ultimate Texas Hold'em returns about <strong>&minus;2.185%</strong> of the ante to a player who plays it perfectly, and that number is a property of the rules, not of the cards or of this program. So optimal play here means <em>losing the least</em> &mdash; and losing the least, measured to within a fraction of a standard error, is the entire job a decision engine can do. Every figure on this page that read like a failure was the engine doing that job. The hand it opened with won nothing and was still the right bet. The 55% that was really 14.5%. The run that went broke at hand 81. The summary line that called eight ruined bankrolls profitable. None of them are the engine being wrong about poker. All of them are the same thing: the engine refusing to guess, and the arithmetic refusing to flatter.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="coda">
+    <div class="coda__inner">
+      <p class="coda__eyebrow">The repo</p>
+      <p class="coda__line">Everything above is in here &mdash; the engine, the tests, the simulations, and the three bugs it has not fixed.</p>
+      <a class="coda__link" href="https://github.com/sumitnathani/Ultimate-Hold-Em-Bot">
+        <span class="coda__repo">github.com/<wbr>sumitnathani/<wbr>Ultimate-Hold-Em-Bot</span>
+        <span class="coda__go">Open &rarr;</span>
+      </a>
+      <p class="coda__meta">146 tests &middot; no dependencies beyond treys &middot; one static file of Python per stage of the hand</p>
+    </div>
+  </footer>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -1673,6 +2002,77 @@ body {
       scrollTrigger: { trigger: cap, start: 'top 92%', once: true }
     });
   });
+
+  // ---- ACT V: four measurements, and then the motion stops ----------------
+  // Each interval grows out of its own estimate rather than out of an edge, so
+  // every row reads as a separate measurement being taken -- and the point of
+  // the figure is precisely that they are separate, and that they disagree.
+  // transformOrigin is set from the row's own inline custom properties rather
+  // than left to the stylesheet's calc(), so the origin cannot drift from the
+  // geometry the verifier asserted.
+
+  gsap.utils.toArray('.forest__row').forEach(function (row) {
+    var ci   = row.querySelector('.forest__ci');
+    var dot  = row.querySelector('.forest__dot');
+    var name = row.querySelector('.forest__name');
+    var val  = row.querySelector('.forest__val');
+
+    var tlRow = gsap.timeline({
+      scrollTrigger: { trigger: row, start: 'top 92%', once: true }
+    });
+
+    if (name) { tlRow.from(name, { opacity: 0, x: -10, duration: .5, ease: 'power2.out' }, 0); }
+    if (val)  { tlRow.from(val,  { opacity: 0, duration: .5, ease: 'power1.out' }, .12); }
+
+    if (ci) {
+      var l  = parseFloat(ci.style.getPropertyValue('--l'));
+      var w  = parseFloat(ci.style.getPropertyValue('--w'));
+      var at = parseFloat(ci.style.getPropertyValue('--at'));
+      var origin = (w > 0 ? ((at - l) / w) * 100 : 50).toFixed(2) + '% center';
+      tlRow.fromTo(ci, { scaleX: 0, transformOrigin: origin },
+                       { scaleX: 1, duration: .8, ease: 'power2.out' }, .18);
+    }
+    if (dot) { tlRow.from(dot, { scale: 0, opacity: 0, duration: .45, ease: 'back.out(2)' }, .6); }
+  });
+
+  // The axis is a frame, not a mark: it fades rather than draws.
+  var axis = document.querySelector('.forest__axis');
+  if (axis) {
+    gsap.from(axis.querySelectorAll('.forest__tick, .forest__reftag'), {
+      opacity: 0, duration: .6, stagger: .07, ease: 'power1.out',
+      scrollTrigger: { trigger: axis, start: 'top 96%', once: true }
+    });
+  }
+
+  gsap.utils.toArray('.forest__note').forEach(function (note) {
+    gsap.from(note, {
+      opacity: 0, y: 14, duration: .8, ease: 'power2.out',
+      scrollTrigger: { trigger: note, start: 'top 92%', once: true }
+    });
+  });
+
+  // The last movement on the page, and it is barely a movement: no travel, no
+  // acceleration, no overshoot. Every reveal above this one carries an ease.
+  // This one is linear, which is as close as a tween gets to standing still --
+  // the motion verb for this act is *stop*, and this is what it sounds like.
+  var verdict = document.querySelector('.verdict');
+  if (verdict) {
+    var tlVerdict = gsap.timeline({
+      scrollTrigger: { trigger: verdict, start: 'top 78%', once: true }
+    });
+    tlVerdict.from(verdict.querySelector('.verdict__line'),
+      { opacity: 0, duration: 1.4, ease: 'none' }, 0);
+    tlVerdict.from(verdict.querySelector('.verdict__sub'),
+      { opacity: 0, duration: 1.1, ease: 'none' }, .9);
+  }
+
+  var codaInner = document.querySelector('.coda__inner');
+  if (codaInner) {
+    gsap.from(codaInner, {
+      opacity: 0, duration: 1.2, ease: 'none',
+      scrollTrigger: { trigger: '.coda', start: 'top 88%', once: true }
+    });
+  }
 
   // ---- idle life: the cards breathe when the viewer is not scrolling ------
   gsap.utils.toArray('.card').forEach(function (card, i) {
