@@ -1,5 +1,7 @@
-<title>The Anti-Hero Hand</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<title>The Anti-Hero Hand — an exact Ultimate Texas Hold'em engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="An exact decision engine for Ultimate Texas Hold'em. It enumerates every outcome, documents every mistake it made, and still loses — because the house edge is in the rules.">
+<meta name="color-scheme" content="dark">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap">
 
 <style>
@@ -369,6 +371,230 @@ body {
   letter-spacing: -.005em; color: var(--ash);
 }
 
+/* ============================================================================
+   THE ACTS  ·  ruled pages after the hero
+   ----------------------------------------------------------------------------
+   Everything sits on the same graphite ground as the hero -- one dark room for
+   the whole document. Chaptering comes from hairlines and space, not from a
+   change of background, so there is no banding to go wrong.
+
+   The page is SET, not designed: rules, margins and type do the work that
+   boxes and shadows would do on a lesser page.
+   ========================================================================= */
+
+.act {
+  position: relative; z-index: 2;
+  padding:
+    clamp(80px, 14vh, 180px)
+    max(24px, env(safe-area-inset-right, 0px))
+    clamp(56px, 9vh, 120px)
+    max(24px, env(safe-area-inset-left, 0px));
+}
+.act__inner { max-width: 1060px; margin: 0 auto; }
+
+.act__head { margin-bottom: clamp(40px, 7vh, 84px); }
+
+.act__eyebrow {
+  margin: 0 0 clamp(14px, 2.4vh, 26px);
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: .24em; text-transform: uppercase; color: var(--ash);
+}
+.act__title {
+  margin: 0 0 clamp(18px, 3vh, 32px);
+  max-width: 17ch;
+  font-family: var(--display); font-weight: 400;
+  font-size: clamp(31px, 5.2vw, 64px);
+  line-height: 1.02; letter-spacing: -.022em;
+  color: var(--bone); text-wrap: balance;
+}
+.act__lede {
+  margin: 0; max-width: 58ch;
+  font-size: clamp(15px, 1.65vw, 18.5px);
+  line-height: 1.64; color: var(--ash); text-wrap: pretty;
+}
+.act__lede strong { color: var(--bone); font-weight: 500; }
+.act__lede em { font-style: italic; color: var(--ice); }
+
+/* ---- the ledger: three streets, three ruled rows ------------------------- */
+/* Big serif figures, proportional numerals -- a display figure set in tabular
+   digits reads loose at this size. The mono is kept for the machine's voice. */
+
+.ledger { list-style: none; margin: 0; padding: 0; }
+
+.ledger__row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 3.4rem minmax(0, 1fr) auto;
+  grid-template-areas:
+    "n name figure"
+    ". note cost";
+  align-items: baseline;
+  column-gap: clamp(12px, 2.2vw, 30px);
+  row-gap: clamp(9px, 1.5vh, 16px);
+  padding: clamp(26px, 3.8vh, 44px) 0;
+}
+
+/* The rule is its own element so it can be drawn, left to right, rather than
+   simply switched on. It is what the row does when it arrives. */
+.ledger__rule {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: var(--hair);
+  transform-origin: left center;
+}
+.ledger__row:first-child::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px;
+  background: var(--hair);
+  transform-origin: left center;
+}
+
+.ledger__n {
+  grid-area: n;
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: .18em; color: var(--ash); white-space: nowrap;
+}
+.ledger__name {
+  grid-area: name;
+  font-family: var(--display); font-weight: 400;
+  font-size: clamp(23px, 3.3vw, 40px);
+  line-height: 1.1; letter-spacing: -.015em; color: var(--bone);
+}
+.ledger__figure {
+  grid-area: figure;
+  display: flex; align-items: baseline; gap: .5em;
+  justify-self: end;
+}
+.ledger__count {
+  font-family: var(--display); font-weight: 400;
+  font-size: clamp(28px, 4.6vw, 58px);
+  line-height: 1; letter-spacing: -.025em;
+  font-variant-numeric: proportional-nums;
+  color: var(--bone);
+}
+.ledger__unit {
+  font-family: var(--mono); font-size: 9.5px;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ash); white-space: nowrap;
+}
+.ledger__note {
+  grid-area: note;
+  max-width: 52ch;
+  font-size: clamp(13px, 1.35vw, 15px);
+  line-height: 1.6; color: var(--ash); text-wrap: pretty;
+}
+.ledger__cost {
+  grid-area: cost; justify-self: end;
+  font-family: var(--mono); font-size: clamp(11px, 1.15vw, 13px);
+  letter-spacing: .06em; color: var(--ice); white-space: nowrap;
+}
+.ledger__cost b { font-weight: 500; }
+.ledger__cost--paid { color: var(--ash); }
+
+/* ---- the measure: what it costs to answer, on a log scale ---------------- */
+/* A scale bar, not a chart. Three ticks on one hairline; the ratio between
+   them is the only thing the rows above cannot say in words.                 */
+
+.measure {
+  margin: clamp(48px, 8vh, 92px) 0 0;
+  padding: 0;
+}
+.measure__inner { padding: 0 clamp(58px, 12vw, 132px); }
+.measure__track {
+  position: relative; height: 1px;
+  background: transparent;
+}
+.measure__line {
+  position: absolute; inset: 0;
+  background: var(--hair);
+  transform-origin: left center;
+}
+.measure__tick {
+  position: absolute; left: var(--at); top: 0;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center;
+  gap: 8px;
+}
+.measure__tick i {
+  display: block; width: 1px; height: 11px;
+  background: var(--ash-dim); margin-top: -6px;
+}
+.measure__name {
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--ash); white-space: nowrap;
+}
+.measure__val {
+  font-family: var(--display); font-weight: 400;
+  font-size: clamp(17px, 1.9vw, 24px);
+  line-height: 1; letter-spacing: -.01em; color: var(--ice);
+  white-space: nowrap;
+}
+.measure__cap {
+  margin: clamp(30px, 4.5vh, 52px) 0 0;
+  text-align: center;
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: .2em; text-transform: uppercase; color: var(--slate);
+}
+
+/* ---- the trap: the faster wrong answer ----------------------------------- */
+
+.trap {
+  margin-top: clamp(56px, 9vh, 104px);
+  padding: clamp(26px, 4vh, 44px) clamp(22px, 3.4vw, 46px);
+  background: var(--ground-2);
+  border-left: 1px solid var(--hair);
+}
+.trap__eyebrow {
+  margin: 0 0 clamp(14px, 2vh, 22px);
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: .24em; text-transform: uppercase; color: var(--ash);
+}
+.trap__body {
+  margin: 0; max-width: 62ch;
+  font-size: clamp(14px, 1.5vw, 16.5px);
+  line-height: 1.68; color: var(--ash); text-wrap: pretty;
+}
+.trap__body strong { color: var(--bone); font-weight: 500; }
+.trap__stats {
+  display: flex; flex-wrap: wrap;
+  gap: clamp(20px, 4vw, 52px);
+  margin: clamp(26px, 4vh, 42px) 0 0;
+}
+.trap__stat { display: flex; flex-direction: column; gap: 7px; }
+.trap__stat dt {
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--ash);
+}
+.trap__stat dd {
+  margin: 0;
+  font-family: var(--display); font-weight: 400;
+  font-size: clamp(22px, 2.6vw, 32px);
+  line-height: 1; letter-spacing: -.015em; color: var(--bone);
+}
+/* The wrong number is struck through, not coloured -- a corrected ledger entry.
+   The strike carries the one drop of red, which is all it needs to mean it. */
+.trap__stat--wrong dd {
+  color: var(--ash);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--card-red);
+}
+.trap__stat--right dd { color: var(--ice); }
+
+@media (max-width: 620px) {
+  .ledger__row {
+    grid-template-columns: 2.2rem minmax(0, 1fr);
+    grid-template-areas:
+      "n name"
+      ". figure"
+      ". note"
+      ". cost";
+    justify-items: start;
+  }
+  .ledger__figure, .ledger__cost { justify-self: start; }
+  .measure__inner { padding: 0 30px; }
+  .measure__name { font-size: 8px; letter-spacing: .12em; }
+}
+
 /* ---- flat mode: no motion, or no GSAP ------------------------------------ */
 /* Everything stacks, nothing is hidden, the page reads as a plain document.  */
 
@@ -385,6 +611,17 @@ body {
 .flat .cue { display: none; }
 .flat .readout { padding-bottom: 0; }
 .flat .group--verdict .field { opacity: 1 !important; transform: none !important; }
+
+/* Act II onward: nothing is motion-gated. The counts keep the value that is
+   already in the markup, so the flat page states the same numbers as the
+   animated one. */
+.flat .act { padding-top: clamp(56px, 9vh, 110px); }
+.flat .ledger__rule,
+.flat .measure__line { transform: none !important; opacity: 1 !important; }
+.flat .ledger__row,
+.flat .ledger__count,
+.flat .measure__tick > *,
+.flat .trap { opacity: 1 !important; transform: none !important; }
 
 @media (max-width: 560px) {
   .rule { display: none; }
@@ -522,6 +759,104 @@ body {
     <p class="bridge__line">The engine did not guess. It enumerated all <em>990</em> dealer holdings, counted them, and read the answer off the total.</p>
     <p class="bridge__next">Act II</p>
     <p class="bridge__nextname">The Cost Of Not Guessing</p>
+  </section>
+
+  <section class="act" id="act-ii">
+    <div class="act__inner">
+
+      <header class="act__head">
+        <p class="act__eyebrow">Act II</p>
+        <h2 class="act__title">The Cost Of Not Guessing</h2>
+        <p class="act__lede">There is no clock on the table, so nothing has to be fast. Where a street can be counted, the engine counts it &mdash; every outcome, not a sample of them &mdash; and the answer comes back exact. <strong>The bill arrives in seconds.</strong></p>
+      </header>
+
+      <ol class="ledger">
+
+        <li class="ledger__row">
+          <span class="ledger__n">01</span>
+          <span class="ledger__name">The river</span>
+          <span class="ledger__figure">
+            <span class="ledger__count" data-count="990">990</span>
+            <span class="ledger__unit">dealer hands</span>
+          </span>
+          <span class="ledger__note">All five board cards are known, so the only unknown is the dealer's two. Every one of the 990 possible holdings is graded and counted. The answer is a tally, not an estimate.</span>
+          <span class="ledger__cost"><b>9</b> ms</span>
+          <span class="ledger__rule" aria-hidden="true"></span>
+        </li>
+
+        <li class="ledger__row">
+          <span class="ledger__n">02</span>
+          <span class="ledger__name">The flop</span>
+          <span class="ledger__figure">
+            <span class="ledger__count" data-count="1070190">1,070,190</span>
+            <span class="ledger__unit">outcomes</span>
+          </span>
+          <span class="ledger__note">Three board cards known. That leaves 1,081 turn-and-river runouts, each one graded against all 990 dealer hands &mdash; 1,081 &times; 990, every pair, exactly once. The spec suggested sampling here. There is no timer, so there is no reason to.</span>
+          <span class="ledger__cost">~<b>9</b> s</span>
+          <span class="ledger__rule" aria-hidden="true"></span>
+        </li>
+
+        <li class="ledger__row">
+          <span class="ledger__n">03</span>
+          <span class="ledger__name">Pre-flop</span>
+          <span class="ledger__figure">
+            <span class="ledger__count" data-count="169">169</span>
+            <span class="ledger__unit">hand classes</span>
+          </span>
+          <span class="ledger__note">Nothing to enumerate: the exact count runs to about 100 million runouts <em>per holding</em>, against 1,326 holdings. So it is measured instead &mdash; 2,000,000 runouts and 6,000 boards for each of the 169 classes, once, offline. Afterwards a decision costs nothing at all: it is a dictionary lookup.</span>
+          <span class="ledger__cost ledger__cost--paid">&asymp;<b>4</b> h &middot; paid once</span>
+          <span class="ledger__rule" aria-hidden="true"></span>
+        </li>
+
+      </ol>
+
+      <figure class="measure">
+        <div class="measure__inner">
+          <div class="measure__track">
+            <span class="measure__line" aria-hidden="true"></span>
+
+            <span class="measure__tick" style="--at: 0%">
+              <i aria-hidden="true"></i>
+              <span class="measure__name">The river</span>
+              <span class="measure__val">9 ms</span>
+            </span>
+
+            <span class="measure__tick" style="--at: 48.4%">
+              <i aria-hidden="true"></i>
+              <span class="measure__name">The flop</span>
+              <span class="measure__val">~9 s</span>
+            </span>
+
+            <span class="measure__tick" style="--at: 100%">
+              <i aria-hidden="true"></i>
+              <span class="measure__name">Pre-flop</span>
+              <span class="measure__val">&asymp;4 h</span>
+            </span>
+          </div>
+        </div>
+        <figcaption class="measure__cap">What it costs to answer &middot; log scale</figcaption>
+      </figure>
+
+      <aside class="trap">
+        <p class="trap__eyebrow">The faster wrong answer</p>
+        <p class="trap__body">There is a way to write the flop enumeration that runs in <strong>2.7 seconds</strong>, where the exact one takes about nine. It hands the dealer the two lowest cards of every draw and the board the two highest, and it visits a sixth of the outcome space. Nothing about it looked broken. It reported a <strong>55% push rate</strong> on a hand whose true rate is 14%, and it was caught only by cross-checking against an independent Monte Carlo run &mdash; which is now a permanent test, so it stays caught.</p>
+        <dl class="trap__stats">
+          <div class="trap__stat trap__stat--wrong">
+            <dt>Reported push rate</dt>
+            <dd>55%</dd>
+          </div>
+          <div class="trap__stat trap__stat--right">
+            <dt>True push rate</dt>
+            <dd>14%</dd>
+          </div>
+          <div class="trap__stat">
+            <dt>Time it took to be wrong</dt>
+            <dd>2.7 s</dd>
+          </div>
+        </dl>
+      </aside>
+
+    </div>
   </section>
 </div>
 
@@ -715,6 +1050,63 @@ body {
     .to(swarms[1], { z: -1200, duration: 30, ease: 'power1.in' }, 70)
     .to(swarms[2], { z: -1400, duration: 30, ease: 'power1.in' }, 70)
     .to('.swarm', { opacity: 0, duration: 14 }, 86);
+
+  // ---- ACT II: the ledger rules in, the figures count ---------------------
+  // Each figure counts up once, on arrival, and keeps its value. A count that
+  // resets to zero when the viewer scrolls back up is worse than no animation,
+  // so these fire once. The markup already holds the true value, which is what
+  // the flat page shows -- the two states state the same number.
+
+  function group(n) {
+    return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  gsap.utils.toArray('.ledger__row').forEach(function (row) {
+    var rule   = row.querySelector('.ledger__rule');
+    var count  = row.querySelector('.ledger__count');
+    var cost   = row.querySelector('.ledger__cost');
+    var note   = row.querySelector('.ledger__note');
+    var target = count ? parseFloat(count.dataset.count) : 0;
+    var proxy  = { v: 0 };
+
+    var tlLedger = gsap.timeline({
+      scrollTrigger: { trigger: row, start: 'top 86%', once: true },
+      onStart: function () { if (count) { count.textContent = '0'; } }
+    });
+
+    if (rule) {
+      tlLedger.fromTo(rule, { scaleX: 0 }, { scaleX: 1, duration: .7, ease: 'power2.out' }, 0);
+    }
+    if (count) {
+      tlLedger
+        .fromTo(count, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: .5, ease: 'power2.out' }, .08)
+        .to(proxy, {
+          v: target, duration: 1.1, ease: 'power2.out',
+          onUpdate: function () { count.textContent = group(proxy.v); }
+        }, .12);
+    }
+    if (note) { tlLedger.fromTo(note, { opacity: 0 }, { opacity: 1, duration: .6 }, .28); }
+    if (cost) { tlLedger.fromTo(cost, { opacity: 0 }, { opacity: 1, duration: .6 }, .42); }
+  });
+
+  // The measure draws as a pen would rule it, then its ticks settle in.
+  // Only the ticks' children are animated -- the tick itself carries a
+  // translateX that positions it, and a transform tween would fight it.
+  var measureLine = document.querySelector('.measure__line');
+  var measureParts = gsap.utils.toArray('.measure__tick > *');
+  if (measureLine && measureParts.length) {
+    gsap.timeline({ scrollTrigger: { trigger: '.measure', start: 'top 84%', once: true } })
+      .fromTo(measureLine, { scaleX: 0 }, { scaleX: 1, duration: 1.1, ease: 'power2.inOut' }, 0)
+      .fromTo(measureParts, { opacity: 0, y: 6 },
+              { opacity: 1, y: 0, duration: .5, stagger: .1, ease: 'power2.out' }, .5);
+  }
+
+  gsap.utils.toArray('.trap').forEach(function (trap) {
+    gsap.from(trap, {
+      opacity: 0, y: 26, duration: .9, ease: 'power2.out',
+      scrollTrigger: { trigger: trap, start: 'top 88%', once: true }
+    });
+  });
 
   // ---- idle life: the cards breathe when the viewer is not scrolling ------
   gsap.utils.toArray('.card').forEach(function (card, i) {
