@@ -143,6 +143,46 @@ const MEASURE = `(() => {
   out.readout = [...document.querySelectorAll('[data-val]')]
     .map((e) => e.dataset.val + '=' + e.textContent.trim());
 
+  // Act IV: the rail has to contain exactly 156 ticks with exactly one lit, and
+  // each meter's fill has to measure the percentage it claims.
+  const rail = document.querySelector('.rail');
+  out.rail = rail ? (() => {
+    const all = [...rail.querySelectorAll('i')];
+    const plain = all.filter((t) => !t.classList.contains('is-signal'));
+    // Every tick on one flex line shares its bottom edge, since the rail is
+    // aligned on flex-end -- so distinct bottoms count the lines exactly.
+    const bottoms = new Set(all.map((t) => Math.round(t.getBoundingClientRect().bottom)));
+    // offsetHeight, not the rect: a pending scaleY(0) reveal tween would read
+    // as zero height through getBoundingClientRect and hide a CSS bug.
+    const rect = (el) => (el ? el.offsetHeight : null);
+    return {
+      ticks: all.length,
+      signal: all.length - plain.length,
+      signalIsFirst: all[0]?.classList.contains('is-signal') ?? null,
+      lines: bottoms.size,
+      tickH: rect(plain[0]),
+      signalH: rect(all[0]),
+    };
+  })() : null;
+
+  out.figures = [...document.querySelectorAll('.figure-tile')].map((t) => ({
+    label: t.querySelector('.figure-tile__label')?.textContent.trim() ?? null,
+    value: t.querySelector('.figure-tile__value')?.textContent.trim() ?? null,
+  }));
+
+  out.meters = [...document.querySelectorAll('.ruin__row')].map((row) => {
+    const track = row.querySelector('.ruin__track');
+    const fill = row.querySelector('.ruin__fill');
+    const t = track.getBoundingClientRect();
+    const f = fill.getBoundingClientRect();
+    return {
+      stack: row.querySelector('.ruin__stack')?.textContent.trim() ?? null,
+      pct: row.querySelector('.ruin__pct')?.textContent.trim() ?? null,
+      fillPct: t.width ? +((f.width / t.width) * 100).toFixed(1) : null,
+      overflows: f.width > t.width + 1,
+    };
+  });
+
   // Sample of the text the page actually renders, for copy checks.
   out.asideStats = [...document.querySelectorAll('.aside__stat')]
     .map((d) => d.querySelector('dt').textContent.trim() + ': ' + d.querySelector('dd').textContent.trim());

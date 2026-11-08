@@ -692,6 +692,139 @@ body {
   .rung__bar::before { left: 25%; }
 }
 
+/* ============================================================================
+   THE NOISE RAIL and THE RUIN METERS  ·  Act IV
+   ----------------------------------------------------------------------------
+   Act IV is one ratio: the edge is 1/156th of the swing around it. A ratio that
+   extreme is exactly the sort of claim a reader should be able to count, so it
+   is drawn to scale -- 156 hairlines, the first one lit -- rather than asserted
+   in a sentence. No axis, no legend, one lit mark: it is a proportion, not a
+   chart, and the caption states it in words as well as in marks.
+
+   The ruin meters below are the same two numbers (mu = 0.027, sigma = 4.2) run
+   forward into the only consequence a player actually feels.
+   ========================================================================= */
+
+.rail {
+  display: flex; flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 2px 3px;
+  margin: 0 0 clamp(16px, 2.4vh, 28px);
+  padding: 0;
+}
+.rail i {
+  display: block; width: 3px; height: 26px;
+  background: var(--hair);
+  transform-origin: center bottom;
+}
+.rail i.is-signal { height: 40px; background: var(--ice); }
+
+.rail__cap {
+  margin: 0; max-width: 62ch;
+  font-size: clamp(13px, 1.4vw, 15.5px);
+  line-height: 1.62; color: var(--ash); text-wrap: pretty;
+}
+.rail__cap strong { color: var(--bone); font-weight: 500; }
+.rail__cap em { font-style: italic; color: var(--ice); }
+.ruin__cap {
+  margin: clamp(22px, 3vh, 34px) 0 0; max-width: 68ch;
+  font-size: clamp(12.5px, 1.35vw, 14.5px);
+  line-height: 1.6; color: var(--ash); text-wrap: pretty;
+}
+
+/* ---- three figures: the same engine, measured three ways ----------------- */
+
+.figures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  gap: clamp(22px, 3.4vw, 44px);
+  margin: clamp(48px, 7.5vh, 88px) 0 0;
+}
+.figure-tile {
+  border-top: 1px solid var(--hair);
+  padding-top: clamp(16px, 2.2vh, 24px);
+}
+.figure-tile__label {
+  margin: 0 0 clamp(10px, 1.4vh, 16px);
+  font-family: var(--mono); font-size: 9.5px;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--ash);
+}
+.figure-tile__value {
+  margin: 0 0 clamp(9px, 1.3vh, 15px);
+  font-family: var(--display); font-weight: 400;
+  font-size: clamp(30px, 4.6vw, 56px);
+  line-height: 1; letter-spacing: -.025em;
+  font-variant-numeric: proportional-nums;
+  color: var(--bone);
+}
+.figure-tile--profit .figure-tile__value { color: var(--ice); }
+.figure-tile__note {
+  margin: 0; font-size: clamp(12.5px, 1.3vw, 14.5px);
+  line-height: 1.6; color: var(--ash); text-wrap: pretty;
+}
+.figure-tile__note strong { color: var(--bone); font-weight: 500; }
+
+/* ---- the ruin meters: five stacks, one ratio each ------------------------ */
+/* One hue, because the bar length already carries the value and the figure is
+   printed at the end of every row -- colour has nothing left to encode. */
+
+.ruin {
+  list-style: none;
+  margin: clamp(42px, 6.5vh, 78px) 0 0; padding: 0;
+}
+.ruin__row {
+  display: grid;
+  grid-template-columns: minmax(0, 7.5rem) minmax(0, 1fr) auto;
+  grid-template-areas:
+    "stack track pct"
+    "note note note";
+  align-items: center;
+  column-gap: clamp(12px, 2vw, 26px);
+  padding: clamp(11px, 1.5vh, 16px) 0;
+  border-bottom: 1px solid var(--hair);
+}
+.ruin__row:first-child { border-top: 1px solid var(--hair); }
+.ruin__stack {
+  grid-area: stack;
+  font-family: var(--mono); font-size: 9.5px;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--ash);
+  white-space: nowrap;
+}
+.ruin__track { grid-area: track; position: relative; height: 4px; background: var(--hair); }
+.ruin__fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: calc(var(--p) * 1%);
+  background: var(--ice);
+  border-radius: 0 2px 2px 0;
+  transform-origin: left center;
+}
+.ruin__pct {
+  grid-area: pct;
+  font-family: var(--mono); font-size: clamp(11px, 1.2vw, 13.5px);
+  letter-spacing: .04em; color: var(--bone);
+  font-variant-numeric: tabular-nums;
+}
+.ruin__note {
+  grid-area: note;
+  margin: clamp(8px, 1.1vh, 13px) 0 0;
+  max-width: 72ch;
+  font-size: clamp(12px, 1.25vw, 13.5px);
+  line-height: 1.58; color: var(--ash); text-wrap: pretty;
+}
+.ruin__note strong { color: var(--bone); font-weight: 500; }
+.ruin__note em { font-style: italic; color: var(--ice); }
+
+@media (max-width: 620px) {
+  .ruin__row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "stack pct"
+      "track track"
+      "note note";
+    row-gap: clamp(7px, 1.2vh, 11px);
+  }
+}
+
 @media (max-width: 620px) {
   .ledger__row {
     grid-template-columns: 2.2rem minmax(0, 1fr);
@@ -734,7 +867,11 @@ body {
 .flat .ledger__count,
 .flat .measure__tick > *,
 .flat .aside,
-.flat .rung__bar i { opacity: 1 !important; transform: none !important; }
+.flat .rung__bar i,
+.flat .rail i,
+.flat .figure-tile,
+.flat .ruin__row,
+.flat .ruin__fill { opacity: 1 !important; transform: none !important; }
 
 @media (max-width: 560px) {
   .rule { display: none; }
@@ -1123,9 +1260,106 @@ body {
 
   <section class="bridge">
     <p class="bridge__eyebrow">Act III</p>
-    <p class="bridge__line">Seven hands, and the same question asked seven ways. It has never once been asked whether the hand wins.</p>
+    <p class="bridge__line">Seven hands, and the same question asked seven ways &mdash; never once the question of whether the hand wins.</p>
     <p class="bridge__next">Act IV</p>
     <p class="bridge__nextname">1 In 156</p>
+  </section>
+
+  <section class="act" id="act-iv">
+    <div class="act__inner">
+
+      <header class="act__head">
+        <p class="act__eyebrow">Act IV</p>
+        <h2 class="act__title">1 In 156</h2>
+        <p class="act__lede">A single hand swings the bankroll by about <strong>4.2 units</strong>. The engine's edge is <strong>0.027</strong>. That is one part signal to a hundred and fifty-six parts noise, and it means that over any stretch of hands you will actually sit through, the result is noise wearing the costume of a result.</p>
+      </header>
+
+      <!-- Drawn, not asserted: the ratio is the act, so it is set to scale. The
+           markup is one lit tick and 155 unlit ones, and the count is the point. -->
+      <p class="rail" aria-hidden="true"><i class="is-signal"></i><i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i></p>
+      <p class="rail__cap">One of those hairlines is the edge. The other <em>155</em> are the swing around it, and nothing about a session's profit or loss tells you which one you were watching.</p>
+
+      <div class="figures">
+        <div class="figure-tile">
+          <p class="figure-tile__label">Realised &middot; 10,000 hands</p>
+          <p class="figure-tile__value">&minus;0.1449</p>
+          <p class="figure-tile__note">Units per hand. A loss <strong>five times</strong> the true edge, from a strategy that had not changed a line.</p>
+        </div>
+        <div class="figure-tile figure-tile--profit">
+          <p class="figure-tile__label">Realised &middot; 20,000 hands</p>
+          <p class="figure-tile__value">+0.0036</p>
+          <p class="figure-tile__note">Units per hand. A <strong>profit</strong>, on a game that cannot be beaten.</p>
+        </div>
+        <div class="figure-tile">
+          <p class="figure-tile__label">The edge, measured</p>
+          <p class="figure-tile__value">&minus;0.0270</p>
+          <p class="figure-tile__note">Units per hand, &plusmn;&thinsp;0.0076, over 35,000 hands. This is the number to believe, and no single run produces it.</p>
+        </div>
+      </div>
+
+      <ul class="ruin">
+        <li class="ruin__row">
+          <span class="ruin__stack">40 antes</span>
+          <span class="ruin__track"><i class="ruin__fill" style="--p:97"></i></span>
+          <span class="ruin__pct">97%</span>
+          <p class="ruin__note">50,000 chips &mdash; the stack the project actually simulated. Ten sessions of 2,000 hands: <strong>8 of the 10 bankrolls went broke</strong>. The 10,000-hand run died at <strong>hand 81</strong>. At this size the stack cannot cover its own expected loss, which is 270 antes.</p>
+        </li>
+        <li class="ruin__row">
+          <span class="ruin__stack">200 antes</span>
+          <span class="ruin__track"><i class="ruin__fill" style="--p:81"></i></span>
+          <span class="ruin__pct">81%</span>
+        </li>
+        <li class="ruin__row">
+          <span class="ruin__stack">400 antes</span>
+          <span class="ruin__track"><i class="ruin__fill" style="--p:57"></i></span>
+          <span class="ruin__pct">57%</span>
+        </li>
+        <li class="ruin__row">
+          <span class="ruin__stack">800 antes</span>
+          <span class="ruin__track"><i class="ruin__fill" style="--p:17"></i></span>
+          <span class="ruin__pct">17%</span>
+          <p class="ruin__note">Even here it is not safe: the deep run, at 800 antes, went broke at <strong>hand 4,990</strong> &mdash; a 2% draw, which is to say an unlucky one. One trial settles nothing, and this is the act that says so.</p>
+        </li>
+        <li class="ruin__row">
+          <span class="ruin__stack">1,200 antes</span>
+          <span class="ruin__track"><i class="ruin__fill" style="--p:2"></i></span>
+          <span class="ruin__pct">2%</span>
+        </li>
+      </ul>
+
+      <p class="ruin__cap">Ruin over 10,000 hands, from the diffusion model at &mu;&thinsp;=&thinsp;0.027 and &sigma;&thinsp;=&thinsp;4.2 &mdash; the same two numbers the rail above is built from. The stack has to be in the hundreds of antes before survival is the likely outcome, and a 5,000-chip maximum bet against a 50,000-chip stack is nowhere near it.</p>
+
+    </div>
   </section>
 </div>
 
@@ -1399,6 +1633,45 @@ body {
     }
     if (body) { tlRung.fromTo(body, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: .55, ease: 'power2.out' }, .18); }
     if (bar)  { tlRung.fromTo(bar, { scaleX: 0 }, { scaleX: 1, duration: .8, ease: 'power3.out' }, .34); }
+  });
+
+  // ---- ACT IV: the rail traces, the figures land, the meters fill ---------
+  // The rail is the argument, so it gets the motion: 156 hairlines draw in
+  // order, and the one lit tick goes past in the first fraction of a second.
+  // That is what the act is about, and it is over before the eye can catch it.
+
+  var railTicks = gsap.utils.toArray('.rail i');
+  if (railTicks.length) {
+    gsap.from(railTicks, {
+      scaleY: 0, opacity: 0,
+      duration: .3, ease: 'power1.out',
+      stagger: { each: .011, from: 'start' },
+      scrollTrigger: { trigger: '.rail', start: 'top 88%', once: true }
+    });
+  }
+
+  gsap.utils.toArray('.figure-tile').forEach(function (tile, i) {
+    gsap.from(tile, {
+      opacity: 0, y: 22, duration: .7, ease: 'power2.out', delay: i * .1,
+      scrollTrigger: { trigger: '.figures', start: 'top 86%', once: true }
+    });
+  });
+
+  // The meters fill from the zero end, which is the end that matters here.
+  gsap.utils.toArray('.ruin__row').forEach(function (row) {
+    var fill = row.querySelector('.ruin__fill');
+    var tlRuin = gsap.timeline({
+      scrollTrigger: { trigger: row, start: 'top 92%', once: true }
+    });
+    tlRuin.from(row, { opacity: 0, duration: .4, ease: 'power1.out' }, 0);
+    if (fill) { tlRuin.fromTo(fill, { scaleX: 0 }, { scaleX: 1, duration: .9, ease: 'power3.out' }, .1); }
+  });
+
+  gsap.utils.toArray('.ruin__cap, .rail__cap').forEach(function (cap) {
+    gsap.from(cap, {
+      opacity: 0, y: 14, duration: .7, ease: 'power2.out',
+      scrollTrigger: { trigger: cap, start: 'top 92%', once: true }
+    });
   });
 
   // ---- idle life: the cards breathe when the viewer is not scrolling ------

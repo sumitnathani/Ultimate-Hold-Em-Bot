@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from itertools import combinations
 from math import comb
 from pathlib import Path
 
@@ -27,8 +28,9 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from decision.evaluator import parse_cards  # noqa: E402
-from decision.ev import ev_of_fold  # noqa: E402
+from decision.evaluator import best_hand_rank, parse_cards, remaining_deck  # noqa: E402
+from decision.ev import BUCKETS, ev_of_fold  # noqa: E402
+from decision.flop import dealer_qualifies  # noqa: E402
 from decision.flop import decide as flop_decide  # noqa: E402
 from decision.flop import enumerate_flop_outcomes  # noqa: E402
 from decision.preflop import decide as preflop_decide  # noqa: E402
@@ -171,24 +173,63 @@ def check_ladder() -> None:
     assert royal.ev_bet == 502.0
 
 
+def reproduce_the_trap(hole, board) -> dict:
+    """Run the buggy enumeration and count its buckets.
+
+    ``itertools.combinations`` yields each subset in the deck's own order, and
+    ``remaining_deck`` is ordered rank-then-suit, so ``draw[:2]`` is always the
+    two lowest-ranked cards -- the dealer gets the small cards every time. It is
+    also only 1/6 of the space. This is the code the module docstring describes;
+    reproducing it here is what makes the page's 55% a regenerated figure rather
+    than a remembered one.
+    """
+    deck = remaining_deck(hole, board)
+    flop = list(board)
+    counts = dict.fromkeys(BUCKETS, 0)
+    for draw in combinations(deck, 4):
+        dealer, runout = list(draw[:2]), list(draw[2:])
+        board5 = flop + runout
+        player_score = best_hand_rank(hole, board5)
+        dealer_score = best_hand_rank(dealer, board5)
+        qualified = dealer_qualifies(dealer_score)
+        if player_score < dealer_score:
+            counts["win_qualified" if qualified else "win_unqualified"] += 1
+        elif player_score > dealer_score:
+            counts["lose_qualified" if qualified else "lose_unqualified"] += 1
+        else:
+            counts["push"] += 1
+    return counts
+
+
 def check_flop() -> None:
     rule("ACT II -- THE TRAP AND THE FLOP LADDER (exact, ~8-10s each)")
 
     # The trap the aside is about: enumerating C(47,4) subsets and splitting each
     # into dealer + runout. It visits 1/6 of the space and hands the dealer the
-    # small cards. The page prints the two rates, so they get regenerated.
+    # small cards. Both the right rate and the wrong one are regenerated here.
     hole_s, board_s = TRAP_HAND
-    sweep = enumerate_flop_outcomes(parse_cards(hole_s), parse_cards(board_s))
+    hole, board = parse_cards(hole_s), parse_cards(board_s)
+
+    sweep = enumerate_flop_outcomes(hole, board)
     total = sum(sweep.counts.values())
     push = sweep.counts["push"] / total
     space = comb(47, 4) / total
+
+    buggy = reproduce_the_trap(hole, board)
+    buggy_total = sum(buggy.values())
+    buggy_push = buggy["push"] / buggy_total
+
     print(f"  {hole_s} on {board_s}  (the hand the trap was caught on)")
-    print(f"    true push rate   {push:.4%}   (page: 14.5%)")
-    print(f"    the trap's       55%           -- {55 / (push * 100):.1f}x too high")
-    print(f"    space visited    C(47,4)/C(47,2)/990 = 1/{1 / space:.2f}   (page: a sixth)")
+    print(f"    true push rate    {push:.4%}   (page: 14.5%)")
+    print(f"    the trap's        {buggy_push:.2%}   (page: 55%)")
+    print(f"    wrong by          {buggy_push / push:.1f}x")
+    print(f"    space visited     C(47,4)/C(47,2)/990 = 1/{1 / space:.2f}   (page: a sixth)")
     assert abs(push - TRAP_TRUE_PUSH) < 0.002, f"true push rate moved: {push:.4%}"
+    assert abs(buggy_push - TRAP_REPORTED_PUSH) < 0.005, (
+        f"the reproduced trap gives {buggy_push:.2%}, page says 55%")
     assert abs(space - 1 / 6) < 1e-9
     assert sweep.runouts == 1_081 and total == 1_070_190
+    assert buggy_total == comb(47, 4) == 178_365
 
     print(f"\n  {'hand':8s} {'board':12s} {'verdict':8s} {'EV bet':>10s} "
           f"{'EV check':>10s} {'margin':>9s}   note")
