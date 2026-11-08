@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from math import comb
 from pathlib import Path
 
 # `python site/verify_claims.py` puts site/ on sys.path, not the repo root, and
@@ -29,6 +30,7 @@ if str(REPO_ROOT) not in sys.path:
 from decision.evaluator import parse_cards  # noqa: E402
 from decision.ev import ev_of_fold  # noqa: E402
 from decision.flop import decide as flop_decide  # noqa: E402
+from decision.flop import enumerate_flop_outcomes  # noqa: E402
 from decision.preflop import decide as preflop_decide  # noqa: E402
 from decision.preflop import load_table, starting_hand_classes  # noqa: E402
 from decision.river import decide as river_decide  # noqa: E402
@@ -40,16 +42,28 @@ from decision.river import enumerate_dealer_outcomes  # noqa: E402
 
 ANTI_HERO = ("2c 3d", "As Ks Qs Js Ts")
 
+# The seven rungs of Act III, in the order they appear on the page, with the
+# page's own bar geometry (--l / --w, in percent of the ladder scale).
+# The scale spans -1 to +3 ante units across 0-100%, so zero sits at 25% and one
+# unit is 25% of the width. Two hands run off the end and are drawn clipped.
+LADDER_ZERO_PCT = 25.0
+LADDER_PCT_PER_UNIT = 25.0
+
 RIVER_LADDER = [
-    ("9h 9d", "Ks Qh Jd 4c 2s", "middle pair"),
-    ("9h 9d", "Ks Qh Jd 4c 9s", "set"),
-    ("7c 2d", "Ks Qh Jd 8s 3c", "total air"),
-    ("Ac Kd", "Ks Qh Jd 8s 3c", "top pair, top kicker"),
-    ("Ac Kd", "Qs Jh 8d 4c 2h", "ace high, no pair"),
-    ("Ah Kh", "Qh Jh 2c 7d 9s", "missed flush draw"),
-    ("7h 7d", "7s 7c 2d 9h 4c", "quads"),
-    ("As 2d", "Ks Qs Js Ts 9c", "the royal"),
+    ("7c 2d", "Ks Qh Jd 8s 3c", "air -- the only fold", 17.75, 7.25),
+    ("Ah Kh", "Qh Jh 2c 7d 9s", "missed flush draw", 25.0, 11.64),
+    ("Ac Kd", "Qs Jh 8d 4c 2h", "ace high, no pair", 25.0, 12.85),
+    ("9h 9d", "Ks Qh Jd 4c 2s", "pair of nines, three overcards", 25.0, 38.76),
+    ("2c 3d", "As Ks Qs Js Ts", "the anti-hero hand", 25.0, 50.0),
+    ("7h 7d", "7s 7c 2d 9h 4c", "quads -- off the end", 25.0, 75.0),
+    ("As 2d", "Ks Qs Js Ts 9c", "the royal -- off the end", 25.0, 75.0),
 ]
+
+# Act II's aside. The trap hand is 7c 2d on Ks Qh Jd, and the two rates the page
+# prints are the ones the module docstring records.
+TRAP_HAND = ("7c 2d", "Ks Qh Jd")
+TRAP_REPORTED_PUSH = 0.55
+TRAP_TRUE_PUSH = 0.145
 
 FLOP_LADDER = [
     ("Js Ts", "As Ks Qs", "flopped royal"),
@@ -110,25 +124,73 @@ def check_ladder() -> None:
     rule("ACT III -- THE RIVER LADDER")
     print(f"  {'hand':8s} {'board':18s} {'verdict':8s} {'EV bet':>10s} "
           f"{'EV fold':>9s} {'margin':>9s}   note")
-    for hole_s, board_s, note in RIVER_LADDER:
+    rows = []
+    for hole_s, board_s, note, bar_l, bar_w in RIVER_LADDER:
         d = river_decide(parse_cards(hole_s), parse_cards(board_s))
         print(f"  {hole_s:8s} {board_s:18s} {d.action.value.upper():8s} "
               f"{d.ev_bet:>+10.4f} {d.ev_fold:>+9.4f} {d.ev_advantage:>+9.4f}   {note}")
+        rows.append((hole_s, board_s, d, bar_l, bar_w))
+
+    # Ascending margin, exactly as the page orders them.
+    margins = [d.ev_advantage for _, _, d, _, _ in rows]
+    print(f"\n  ascending by margin: {margins == sorted(margins)}   "
+          f"(page order is the ladder)")
+    assert margins == sorted(margins)
 
     # The one fold, and by how little it wins.
-    fold = river_decide(parse_cards("7c 2d"), parse_cards("Ks Qh Jd 8s 3c"))
-    print(f"\n  the only fold wins by {abs(fold.ev_advantage):.4f} units "
+    first = rows[0][2]
+    print(f"  the only fold wins by {abs(first.ev_advantage):.4f} units "
           f"out of a 2-unit decision")
 
-    # Ace-high, no pair, is still a bet.
-    ace = river_decide(parse_cards("Ac Kd"), parse_cards("Qs Jh 8d 4c 2h"))
-    print(f"  ace high, no pair: bets and expects {ace.ev_bet:+.4f}; "
-          f"folding is {ace.ev_fold:+.4f}")
+    # The bar geometry the page hard-codes has to follow from the margin.
+    print("\n  bar geometry on the -1..+3 scale (zero at 25%, 25% per unit):")
+    for hole_s, _, d, bar_l, bar_w in rows:
+        end = LADDER_ZERO_PCT + d.ev_advantage * LADDER_PCT_PER_UNIT
+        want_l = LADDER_ZERO_PCT if d.ev_advantage >= 0 else end
+        want_w = min(abs(d.ev_advantage) * LADDER_PCT_PER_UNIT, 75.0)
+        ok = abs(want_l - bar_l) < 0.02 and abs(want_w - bar_w) < 0.02
+        print(f"    {hole_s:8s} page --l:{bar_l:<6} --w:{bar_w:<6} "
+              f"computed --l:{want_l:.2f} --w:{want_w:.2f}   {'ok' if ok else 'MISMATCH'}")
+        assert ok, f"bar geometry drifted for {hole_s}"
+
+    # Every rung but the first bets. That asymmetry is the act.
+    verdicts = [d.action.value for _, _, d, _, _ in rows]
+    print(f"\n  verdicts: {verdicts}")
+    assert verdicts.count("bet") == 6 and verdicts[0] == "fold"
+
+    # The anti-hero rung: the board plays, so betting is worth exactly zero and
+    # folding is worth exactly -2. The page prints +2.0000 and +0.0000.
+    hero = rows[4][2]
+    print(f"  the anti-hero rung: EV bet {hero.ev_bet:+.4f}, "
+          f"margin {hero.ev_advantage:+.4f}   (page: +0.0000 / +2.0000)")
+    assert hero.ev_bet == 0.0 and hero.ev_advantage == 2.0
+
+    # The royal: the Blind pays 500:1 on it, so the margin is huge, not infinite.
+    royal = rows[6][2]
+    print(f"  the royal rung: EV bet {royal.ev_bet:+.4f}   (page: +502.0000)")
+    assert royal.ev_bet == 502.0
 
 
 def check_flop() -> None:
-    rule("ACT III -- THE FLOP LADDER (exact, ~8s each)")
-    print(f"  {'hand':8s} {'board':12s} {'verdict':8s} {'EV bet':>10s} "
+    rule("ACT II -- THE TRAP AND THE FLOP LADDER (exact, ~8-10s each)")
+
+    # The trap the aside is about: enumerating C(47,4) subsets and splitting each
+    # into dealer + runout. It visits 1/6 of the space and hands the dealer the
+    # small cards. The page prints the two rates, so they get regenerated.
+    hole_s, board_s = TRAP_HAND
+    sweep = enumerate_flop_outcomes(parse_cards(hole_s), parse_cards(board_s))
+    total = sum(sweep.counts.values())
+    push = sweep.counts["push"] / total
+    space = comb(47, 4) / total
+    print(f"  {hole_s} on {board_s}  (the hand the trap was caught on)")
+    print(f"    true push rate   {push:.4%}   (page: 14.5%)")
+    print(f"    the trap's       55%           -- {55 / (push * 100):.1f}x too high")
+    print(f"    space visited    C(47,4)/C(47,2)/990 = 1/{1 / space:.2f}   (page: a sixth)")
+    assert abs(push - TRAP_TRUE_PUSH) < 0.002, f"true push rate moved: {push:.4%}"
+    assert abs(space - 1 / 6) < 1e-9
+    assert sweep.runouts == 1_081 and total == 1_070_190
+
+    print(f"\n  {'hand':8s} {'board':12s} {'verdict':8s} {'EV bet':>10s} "
           f"{'EV check':>10s} {'margin':>9s}   note")
     for hole_s, board_s, note in FLOP_LADDER:
         d = flop_decide(parse_cards(hole_s), parse_cards(board_s))

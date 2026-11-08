@@ -535,36 +535,36 @@ body {
   letter-spacing: .2em; text-transform: uppercase; color: var(--slate);
 }
 
-/* ---- the trap: the faster wrong answer ----------------------------------- */
+/* ---- the aside: a ruled note set off from the argument ------------------- */
 
-.trap {
+.aside {
   margin-top: clamp(56px, 9vh, 104px);
   padding: clamp(26px, 4vh, 44px) clamp(22px, 3.4vw, 46px);
   background: var(--ground-2);
   border-left: 1px solid var(--hair);
 }
-.trap__eyebrow {
+.aside__eyebrow {
   margin: 0 0 clamp(14px, 2vh, 22px);
   font-family: var(--mono); font-size: 10px;
   letter-spacing: .24em; text-transform: uppercase; color: var(--ash);
 }
-.trap__body {
+.aside__body {
   margin: 0; max-width: 62ch;
   font-size: clamp(14px, 1.5vw, 16.5px);
   line-height: 1.68; color: var(--ash); text-wrap: pretty;
 }
-.trap__body strong { color: var(--bone); font-weight: 500; }
-.trap__stats {
+.aside__body strong { color: var(--bone); font-weight: 500; }
+.aside__stats {
   display: flex; flex-wrap: wrap;
   gap: clamp(20px, 4vw, 52px);
   margin: clamp(26px, 4vh, 42px) 0 0;
 }
-.trap__stat { display: flex; flex-direction: column; gap: 7px; }
-.trap__stat dt {
+.aside__stat { display: flex; flex-direction: column; gap: 7px; }
+.aside__stat dt {
   font-family: var(--mono); font-size: 9px;
   letter-spacing: .16em; text-transform: uppercase; color: var(--ash);
 }
-.trap__stat dd {
+.aside__stat dd {
   margin: 0;
   font-family: var(--display); font-weight: 400;
   font-size: clamp(22px, 2.6vw, 32px);
@@ -572,13 +572,125 @@ body {
 }
 /* The wrong number is struck through, not coloured -- a corrected ledger entry.
    The strike carries the one drop of red, which is all it needs to mean it. */
-.trap__stat--wrong dd {
+.aside__stat--wrong dd {
   color: var(--ash);
   text-decoration: line-through;
   text-decoration-thickness: 1px;
   text-decoration-color: var(--card-red);
 }
-.trap__stat--right dd { color: var(--ice); }
+.aside__stat--right dd { color: var(--ice); }
+
+/* ============================================================================
+   THE LADDER  ·  Act III
+   ----------------------------------------------------------------------------
+   Seven real decisions, ascending by margin. The italic line is what a person
+   reads off the hand; the roman line under it is what the engine says. The
+   distance between the two is the act.
+
+   The cards are the same component as the hero's, scaled down by the one
+   number every card dimension derives from -- so nothing here re-draws a card.
+   ========================================================================= */
+
+.ladder { list-style: none; margin: 0; padding: 0; }
+
+.ladder__scale {
+  margin: 0 0 clamp(20px, 3vh, 34px);
+  font-family: var(--mono); font-size: 9.5px;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--slate);
+}
+
+.rung {
+  --cw: clamp(21px, 2.45vw, 32px);
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: clamp(18px, 3.4vw, 48px);
+  row-gap: clamp(12px, 1.8vh, 18px);
+  padding: clamp(22px, 3.2vh, 38px) 0;
+}
+.rung__rule {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: var(--hair); transform-origin: left center;
+}
+.ladder .rung:first-child::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px;
+  background: var(--hair);
+}
+
+/* The hole cards only -- the board is set as notation, which keeps the row
+   readable at seven across and leaves the cards meaning "yours". */
+.rung__hole { display: flex; gap: calc(var(--cw) * .16); }
+.rung__hole .card { will-change: transform, opacity; }
+
+.rung__body { display: grid; gap: clamp(7px, 1.1vh, 12px); min-width: 0; }
+
+.rung__board {
+  font-family: var(--mono); font-size: clamp(10px, 1.1vw, 12.5px);
+  letter-spacing: .1em; color: var(--ash); white-space: nowrap;
+}
+.rung__board b { color: var(--bone); font-weight: 400; }
+
+.rung__read {
+  margin: 0;
+  font-family: var(--display); font-style: italic; font-weight: 400;
+  font-size: clamp(16px, 1.95vw, 25px);
+  line-height: 1.18; letter-spacing: -.008em; color: var(--ash);
+}
+.rung__verdict {
+  margin: 0; display: flex; align-items: baseline; flex-wrap: wrap;
+  gap: 6px clamp(12px, 2vw, 22px);
+}
+.rung__action {
+  font-family: var(--display); font-weight: 400;
+  font-size: clamp(25px, 3.5vw, 44px);
+  line-height: 1; letter-spacing: -.02em; color: var(--bone);
+}
+.rung__action--fold { color: var(--ash); }
+.rung__margin {
+  font-family: var(--mono); font-size: clamp(11.5px, 1.25vw, 14.5px);
+  letter-spacing: .05em; color: var(--ice);
+  font-variant-numeric: tabular-nums;
+}
+.rung__margin--neg { color: var(--ash); }
+.rung__nums {
+  margin: 0;
+  font-family: var(--mono); font-size: clamp(9.5px, 1.02vw, 11.5px);
+  letter-spacing: .06em; color: var(--slate);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- the margin bar: diverging about a zero the eye can find ------------- */
+/* Scale is fixed at -1 .. +3 ante units for every row, so the rows compare.
+   Two hands run off the end; they say so rather than being silently clipped. */
+
+.rung__bar { position: relative; display: block; height: 12px; }
+.rung__bar::before {
+  content: ""; position: absolute; left: 25%; top: 0; bottom: 0; width: 1px;
+  background: var(--hair);
+}
+.rung__bar i {
+  position: absolute; top: 4px; height: 4px;
+  left: calc(var(--l) * 1%); width: calc(var(--w) * 1%);
+  background: var(--ice);
+  border-radius: 0 2px 2px 0;
+  transform-origin: left center;
+}
+.rung__bar i.neg {
+  background: rgba(242, 240, 234, .3);
+  border-radius: 2px 0 0 2px;
+  transform-origin: right center;
+}
+.rung__bar i.is-break { border-radius: 0; }
+.rung__bar i.is-break::after {
+  content: "\00BB"; position: absolute; right: -13px; top: -7px;
+  font-size: 11px; line-height: 1; color: var(--ice); font-family: var(--ui);
+}
+
+@media (max-width: 620px) {
+  .rung { grid-template-columns: minmax(0, 1fr); align-items: start; }
+  .rung__bar::before { left: 25%; }
+}
 
 @media (max-width: 620px) {
   .ledger__row {
@@ -621,7 +733,8 @@ body {
 .flat .ledger__row,
 .flat .ledger__count,
 .flat .measure__tick > *,
-.flat .trap { opacity: 1 !important; transform: none !important; }
+.flat .aside,
+.flat .rung__bar i { opacity: 1 !important; transform: none !important; }
 
 @media (max-width: 560px) {
   .rule { display: none; }
@@ -837,19 +950,19 @@ body {
         <figcaption class="measure__cap">What it costs to answer &middot; log scale</figcaption>
       </figure>
 
-      <aside class="trap">
-        <p class="trap__eyebrow">The faster wrong answer</p>
-        <p class="trap__body">There is a way to write the flop enumeration that runs in <strong>2.7 seconds</strong>, where the exact one takes about nine. It hands the dealer the two lowest cards of every draw and the board the two highest, and it visits a sixth of the outcome space. Nothing about it looked broken. It reported a <strong>55% push rate</strong> on a hand whose true rate is 14%, and it was caught only by cross-checking against an independent Monte Carlo run &mdash; which is now a permanent test, so it stays caught.</p>
-        <dl class="trap__stats">
-          <div class="trap__stat trap__stat--wrong">
+      <aside class="aside">
+        <p class="aside__eyebrow">The faster wrong answer</p>
+        <p class="aside__body">There is a way to write the flop enumeration that runs in <strong>2.7 seconds</strong>, where the exact one takes about nine. It hands the dealer the two lowest cards of every draw and the board the two highest, and it visits a sixth of the outcome space. Nothing about it looked broken. It reported a <strong>55% push rate</strong> on a hand whose true push rate is 14.5%, and it was caught only by cross-checking against an independent Monte Carlo run &mdash; which is now a permanent test, so it stays caught.</p>
+        <dl class="aside__stats">
+          <div class="aside__stat aside__stat--wrong">
             <dt>Reported push rate</dt>
             <dd>55%</dd>
           </div>
-          <div class="trap__stat trap__stat--right">
+          <div class="aside__stat aside__stat--right">
             <dt>True push rate</dt>
-            <dd>14%</dd>
+            <dd>14.5%</dd>
           </div>
-          <div class="trap__stat">
+          <div class="aside__stat">
             <dt>Time it took to be wrong</dt>
             <dd>2.7 s</dd>
           </div>
@@ -857,6 +970,162 @@ body {
       </aside>
 
     </div>
+  </section>
+
+  <section class="act" id="act-iii">
+    <div class="act__inner">
+
+      <header class="act__head">
+        <p class="act__eyebrow">Act III</p>
+        <h2 class="act__title">The Wrong Question</h2>
+        <p class="act__lede">Seven real decisions, with the numbers the engine actually returned. The italic line is the hand as a person reads it. The line under it is what the engine did about it.</p>
+      </header>
+
+      <p class="ladder__scale">Margin, on one scale for every row &middot; &minus;1 to +3 ante units &middot; two hands run off the end</p>
+
+      <ol class="ladder">
+
+        <li class="rung">
+          <span class="rung__hole">
+            <span class="card"><span class="face"><b>7</b><em>&#9827;</em></span></span>
+            <span class="card is-red"><span class="face"><b>2</b><em>&#9670;</em></span></span>
+          </span>
+          <div class="rung__body">
+            <p class="rung__board">on <b>K&#9824; Q&#9829; J&#9670; 8&#9824; 3&#9827;</b></p>
+            <p class="rung__read">Nothing. Not a pair, not a draw.</p>
+            <p class="rung__verdict">
+              <span class="rung__action rung__action--fold">Fold</span>
+              <span class="rung__margin rung__margin--neg">&minus;0.2899</span>
+            </p>
+            <p class="rung__nums">EV bet &minus;2.2899 &nbsp;&middot;&nbsp; EV fold &minus;2.0000</p>
+            <span class="rung__bar"><i class="neg" style="--l:17.75; --w:7.25"></i></span>
+          </div>
+          <span class="rung__rule" aria-hidden="true"></span>
+        </li>
+
+        <li class="rung">
+          <span class="rung__hole">
+            <span class="card is-red"><span class="face"><b>A</b><em>&#9829;</em></span></span>
+            <span class="card is-red"><span class="face"><b>K</b><em>&#9829;</em></span></span>
+          </span>
+          <div class="rung__body">
+            <p class="rung__board">on <b>Q&#9829; J&#9829; 2&#9827; 7&#9670; 9&#9824;</b></p>
+            <p class="rung__read">A flush draw that missed on the river.</p>
+            <p class="rung__verdict">
+              <span class="rung__action">Bet</span>
+              <span class="rung__margin">+0.4657</span>
+            </p>
+            <p class="rung__nums">EV bet &minus;1.5343 &nbsp;&middot;&nbsp; EV fold &minus;2.0000</p>
+            <span class="rung__bar"><i style="--l:25; --w:11.64"></i></span>
+          </div>
+          <span class="rung__rule" aria-hidden="true"></span>
+        </li>
+
+        <li class="rung">
+          <span class="rung__hole">
+            <span class="card"><span class="face"><b>A</b><em>&#9827;</em></span></span>
+            <span class="card is-red"><span class="face"><b>K</b><em>&#9670;</em></span></span>
+          </span>
+          <div class="rung__body">
+            <p class="rung__board">on <b>Q&#9824; J&#9829; 8&#9670; 4&#9827; 2&#9829;</b></p>
+            <p class="rung__read">Ace high. No pair, no draw, nothing.</p>
+            <p class="rung__verdict">
+              <span class="rung__action">Bet</span>
+              <span class="rung__margin">+0.5141</span>
+            </p>
+            <p class="rung__nums">EV bet &minus;1.4859 &nbsp;&middot;&nbsp; EV fold &minus;2.0000</p>
+            <span class="rung__bar"><i style="--l:25; --w:12.85"></i></span>
+          </div>
+          <span class="rung__rule" aria-hidden="true"></span>
+        </li>
+
+        <li class="rung">
+          <span class="rung__hole">
+            <span class="card is-red"><span class="face"><b>9</b><em>&#9829;</em></span></span>
+            <span class="card is-red"><span class="face"><b>9</b><em>&#9670;</em></span></span>
+          </span>
+          <div class="rung__body">
+            <p class="rung__board">on <b>K&#9824; Q&#9829; J&#9670; 4&#9827; 2&#9824;</b></p>
+            <p class="rung__read">A pair of nines, under three overcards.</p>
+            <p class="rung__verdict">
+              <span class="rung__action">Bet</span>
+              <span class="rung__margin">+1.5505</span>
+            </p>
+            <p class="rung__nums">EV bet &minus;0.4495 &nbsp;&middot;&nbsp; EV fold &minus;2.0000</p>
+            <span class="rung__bar"><i style="--l:25; --w:38.76"></i></span>
+          </div>
+          <span class="rung__rule" aria-hidden="true"></span>
+        </li>
+
+        <li class="rung">
+          <span class="rung__hole">
+            <span class="card"><span class="face"><b>2</b><em>&#9827;</em></span></span>
+            <span class="card is-red"><span class="face"><b>3</b><em>&#9670;</em></span></span>
+          </span>
+          <div class="rung__body">
+            <p class="rung__board">on <b>A&#9824; K&#9824; Q&#9824; J&#9824; T&#9824;</b></p>
+            <p class="rung__read">You cannot win this hand. Not once in 990 tries.</p>
+            <p class="rung__verdict">
+              <span class="rung__action">Bet</span>
+              <span class="rung__margin">+2.0000</span>
+            </p>
+            <p class="rung__nums">EV bet +0.0000 &nbsp;&middot;&nbsp; EV fold &minus;2.0000</p>
+            <span class="rung__bar"><i style="--l:25; --w:50"></i></span>
+          </div>
+          <span class="rung__rule" aria-hidden="true"></span>
+        </li>
+
+        <li class="rung">
+          <span class="rung__hole">
+            <span class="card is-red"><span class="face"><b>7</b><em>&#9829;</em></span></span>
+            <span class="card is-red"><span class="face"><b>7</b><em>&#9670;</em></span></span>
+          </span>
+          <div class="rung__body">
+            <p class="rung__board">on <b>7&#9824; 7&#9827; 2&#9670; 9&#9829; 4&#9827;</b></p>
+            <p class="rung__read">Four sevens. The best hand at the table.</p>
+            <p class="rung__verdict">
+              <span class="rung__action">Bet</span>
+              <span class="rung__margin">+14.0000</span>
+            </p>
+            <p class="rung__nums">EV bet +12.0000 &nbsp;&middot;&nbsp; EV fold &minus;2.0000</p>
+            <span class="rung__bar"><i class="is-break" style="--l:25; --w:75"></i></span>
+          </div>
+          <span class="rung__rule" aria-hidden="true"></span>
+        </li>
+
+        <li class="rung">
+          <span class="rung__hole">
+            <span class="card"><span class="face"><b>A</b><em>&#9824;</em></span></span>
+            <span class="card is-red"><span class="face"><b>2</b><em>&#9670;</em></span></span>
+          </span>
+          <div class="rung__body">
+            <p class="rung__board">on <b>K&#9824; Q&#9824; J&#9824; T&#9824; 9&#9827;</b></p>
+            <p class="rung__read">A royal flush. The hand the game is named for.</p>
+            <p class="rung__verdict">
+              <span class="rung__action">Bet</span>
+              <span class="rung__margin">+504.0000</span>
+            </p>
+            <p class="rung__nums">EV bet +502.0000 &nbsp;&middot;&nbsp; EV fold &minus;2.0000</p>
+            <span class="rung__bar"><i class="is-break" style="--l:25; --w:75"></i></span>
+          </div>
+          <span class="rung__rule" aria-hidden="true"></span>
+        </li>
+
+      </ol>
+
+      <aside class="aside">
+        <p class="aside__eyebrow">The conventional answer</p>
+        <p class="aside__body">Poker players have always called <strong>7&#9829;2&#9824;</strong> the worst hand in the game. The engine's own table disagrees, twice over. <strong>2&#9827;3&#9830;</strong> &mdash; the hand this page opened with &mdash; wins <em>less often</em>: 29.2% of the time, against 31.7% for the seven-deuce. But <strong>7&#9829;2&#9824;</strong> is worth <em>less</em>: &minus;0.96 ante units against &minus;0.93. There are two defensible answers to the question of the worst hand in poker, and they are not the same hand.</p>
+      </aside>
+
+    </div>
+  </section>
+
+  <section class="bridge">
+    <p class="bridge__eyebrow">Act III</p>
+    <p class="bridge__line">Seven hands, and the same question asked seven ways. It has never once been asked whether the hand wins.</p>
+    <p class="bridge__next">Act IV</p>
+    <p class="bridge__nextname">1 In 156</p>
   </section>
 </div>
 
@@ -1101,11 +1370,35 @@ body {
               { opacity: 1, y: 0, duration: .5, stagger: .1, ease: 'power2.out' }, .5);
   }
 
-  gsap.utils.toArray('.trap').forEach(function (trap) {
-    gsap.from(trap, {
+  gsap.utils.toArray('.aside').forEach(function (note) {
+    gsap.from(note, {
       opacity: 0, y: 26, duration: .9, ease: 'power2.out',
-      scrollTrigger: { trigger: trap, start: 'top 88%', once: true }
+      scrollTrigger: { trigger: note, start: 'top 88%', once: true }
     });
+  });
+
+  // ---- ACT III: the rungs rule in, the cards are dealt, the bars fill ------
+  // The margin bar is the only thing here that encodes a number twice, so it
+  // is worth the motion: the bar grows out of the zero line, which is where
+  // the reader's eye has to be for the row to mean anything.
+
+  gsap.utils.toArray('.rung').forEach(function (rung) {
+    var rule   = rung.querySelector('.rung__rule');
+    var cards  = rung.querySelectorAll('.rung__hole .card');
+    var body   = rung.querySelector('.rung__body');
+    var bar    = rung.querySelector('.rung__bar i');
+
+    var tlRung = gsap.timeline({
+      scrollTrigger: { trigger: rung, start: 'top 88%', once: true }
+    });
+
+    if (rule) { tlRung.fromTo(rule, { scaleX: 0 }, { scaleX: 1, duration: .8, ease: 'power2.out' }, 0); }
+    if (cards.length) {
+      tlRung.fromTo(cards, { opacity: 0, y: -18, rotateZ: -7 },
+                    { opacity: 1, y: 0, rotateZ: 0, duration: .5, stagger: .09, ease: 'back.out(1.5)' }, .05);
+    }
+    if (body) { tlRung.fromTo(body, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: .55, ease: 'power2.out' }, .18); }
+    if (bar)  { tlRung.fromTo(bar, { scaleX: 0 }, { scaleX: 1, duration: .8, ease: 'power3.out' }, .34); }
   });
 
   // ---- idle life: the cards breathe when the viewer is not scrolling ------

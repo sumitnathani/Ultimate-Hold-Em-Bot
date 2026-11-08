@@ -144,8 +144,30 @@ const MEASURE = `(() => {
     .map((e) => e.dataset.val + '=' + e.textContent.trim());
 
   // Sample of the text the page actually renders, for copy checks.
-  out.trapStats = [...document.querySelectorAll('.trap__stat')]
+  out.asideStats = [...document.querySelectorAll('.aside__stat')]
     .map((d) => d.querySelector('dt').textContent.trim() + ': ' + d.querySelector('dd').textContent.trim());
+
+  // Act III: every rung as the reader gets it -- the two lines, the verdict, the
+  // margin, and the bar's real geometry in pixels, which is what a hard-coded
+  // --l/--w percentage is most likely to get wrong.
+  out.rungs = [...document.querySelectorAll('.rung')].map((li) => {
+    const bar = li.querySelector('.rung__bar');
+    const fill = li.querySelector('.rung__bar i');
+    const b = bar ? bar.getBoundingClientRect() : null;
+    const f = fill ? fill.getBoundingClientRect() : null;
+    return {
+      read: (li.querySelector('.rung__read') || {}).textContent?.trim() || null,
+      action: (li.querySelector('.rung__action') || {}).textContent?.trim() || null,
+      margin: (li.querySelector('.rung__margin') || {}).textContent?.trim() || null,
+      barW: b ? Math.round(b.width) : null,
+      fillW: f ? Math.round(f.width) : null,
+      fillPct: b && b.width ? +((f.width / b.width) * 100).toFixed(2) : null,
+      fillLeftPct: b && b.width ? +(((f.left - b.left) / b.width) * 100).toFixed(2) : null,
+      clipped: f ? f.right > b.right + 1 : null,
+      cardTop: (li.querySelector('.rung__hole .card') || {}).getBoundingClientRect
+        ? Math.round(li.querySelector('.rung__hole .card').getBoundingClientRect().top + scrollY) : null,
+    };
+  });
 
   // States of everything the scroll drives. Read after a full scroll pass to
   // prove the motion actually fired and landed on the right values.
@@ -159,11 +181,22 @@ const MEASURE = `(() => {
     ledgerNote: op('.ledger__note'),
     measureLine: op('.measure__line'),
     measureVal: op('.measure__val'),
-    trap: op('.trap'),
+    aside: op('.aside'),
+    rungRule: op('.rung__rule'),
+    rungBody: op('.rung__body'),
+    rungBar: op('.rung__bar i'),
     boardCard: op('.board .card'),
     caption1: op('.captions .caption:nth-child(1)'),
     caption5: op('.captions .caption:nth-child(5)'),
   };
+  out.rungRuleTransform = (() => {
+    const el = document.querySelector('.rung__rule');
+    return el ? getComputedStyle(el).transform : null;
+  })();
+  out.rungBarTransform = (() => {
+    const el = document.querySelector('.rung__bar i');
+    return el ? getComputedStyle(el).transform : null;
+  })();
   out.measureLineTransform = (() => {
     const el = document.querySelector('.measure__line');
     return el ? getComputedStyle(el).transform : null;
